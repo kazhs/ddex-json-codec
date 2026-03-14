@@ -9,3 +9,24 @@ export type TextWithAttribute<T extends Record<string, string> = Record<string, 
 } & T;
 
 export type TitleText = TextWithAttribute<{ languageAndScriptCode?: string }>;
+
+export interface Title {
+  titleText: string;
+  subTitle?: string;
+  titleType?: string;
+}
+
+export interface PLine {
+  year?: string;
+  pLineText: string;
+}
+
+export interface CLine {
+  year?: string;
+  cLineText: string;
+}
+
+export interface Genre {
+  genreText: string;
+  subGenre?: string;
+}

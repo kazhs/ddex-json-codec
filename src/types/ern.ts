@@ -1,6 +1,6 @@
 import type { SoundRecording } from './sound-recording.js';
 import type { Release, TrackRelease } from './release.js';
-import type { Deal } from './deal.js';
+import type { ReleaseDeal } from './deal.js';
 import type { Party } from './party.js';
 
 /**
@@ -15,19 +15,29 @@ export type ErnVersion =
  */
 export type ErnMajorVersion = '3.8' | '4';
 
+export interface MessageParty {
+  partyId?: string;
+  partyIdIsDpid?: boolean;
+  fullName?: string;
+  tradingName?: string;
+}
+
 export interface MessageHeader {
+  messageThreadId?: string;
   messageId: string;
-  messageSender: string;
-  messageRecipient: string;
+  messageFileName?: string;
+  messageSender: MessageParty;
+  messageRecipient: MessageParty;
   messageCreatedDateTime: string;
 }
 
 export interface DdexMessage {
   ernVersion: ErnVersion;
   messageHeader: MessageHeader;
+  updateIndicator?: string;
   resourceList: SoundRecording[];
   releaseList: Release[];
-  dealList: Deal[];
+  dealList: ReleaseDeal[];
   /** 4系のみ: PartyList（ラウンドトリップ用に保持） */
   partyList?: Party[];
   /** 4系のみ: TrackRelease */
