@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const fixtures = resolve(import.meta.dirname, 'fixtures');
-const singleXml = readFileSync(resolve(fixtures, 'ern382-single.xml'), 'utf-8');
-const albumXml = readFileSync(resolve(fixtures, 'ern382-album.xml'), 'utf-8');
+const singleXml = readFileSync(resolve(fixtures, 'ern382/single.xml'), 'utf-8');
+const albumXml = readFileSync(resolve(fixtures, 'ern382/album.xml'), 'utf-8');
 
 describe('Roundtrip: XML→JSON→XML→JSON', () => {
   test('ern382-single: roundtrip produces equivalent JSON', () => {

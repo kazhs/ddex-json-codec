@@ -4,4 +4,6 @@ dist
 .DS_Store
 .claude/*
 !.claude/agents/
-tests/fixtures/*.xml
+# Proprietary test fixtures (real distribution data)
+tests/fixtures/ern382/single.xml
+tests/fixtures/ern382/album.xml

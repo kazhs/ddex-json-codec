@@ -6,8 +6,8 @@ import { XMLParser } from 'fast-xml-parser';
 import { PARSER_OPTIONS } from '../src/converter/utils.js';
 
 const fixtures = resolve(import.meta.dirname, 'fixtures');
-const singleXml = readFileSync(resolve(fixtures, 'ern382-single.xml'), 'utf-8');
-const albumXml = readFileSync(resolve(fixtures, 'ern382-album.xml'), 'utf-8');
+const singleXml = readFileSync(resolve(fixtures, 'ern382/single.xml'), 'utf-8');
+const albumXml = readFileSync(resolve(fixtures, 'ern382/album.xml'), 'utf-8');
 
 describe('JSON→XML: ern382-single', () => {
   const msg = xmlToJson(singleXml);

@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const fixtures = resolve(import.meta.dirname, 'fixtures');
-const singleXml = readFileSync(resolve(fixtures, 'ern382-single.xml'), 'utf-8');
-const albumXml = readFileSync(resolve(fixtures, 'ern382-album.xml'), 'utf-8');
+const singleXml = readFileSync(resolve(fixtures, 'ern382/single.xml'), 'utf-8');
+const albumXml = readFileSync(resolve(fixtures, 'ern382/album.xml'), 'utf-8');
 
 describe('detectVersion', () => {
   test('should detect ERN 3.8.2 from namespace URI', () => {
