@@ -1,9 +1,19 @@
 {
-  "name": "@ddex/json-codec",
+  "name": "ddex-json-codec",
   "type": "module",
   "version": "0.0.1",
   "description": "DDEX ERN XML ↔ JSON converter for TypeScript",
   "license": "MIT",
+  "author": "kazhs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kazhs/ddex-json-codec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kazhs/ddex-json-codec/issues"
+  },
+  "homepage": "https://github.com/kazhs/ddex-json-codec#readme",
+  "keywords": ["ddex", "ern", "xml", "json", "music", "metadata", "converter", "codec"],
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
