@@ -1,26 +1,30 @@
 import type { ErnVersion } from '../types/ern.js';
-import { detectVersion, getMajorVersion } from '../version/detect.js';
+import { getMajorVersion } from '../version/detect.js';
 import type { XmlToJsonConverter } from './xml-to-json/index.js';
 import type { JsonToXmlBuilder } from './json-to-xml/index.js';
-
-// TODO: 実装後にimportを追加
-// import { Ern38Converter } from './xml-to-json/ern38-converter.js';
-// import { Ern4Converter } from './xml-to-json/ern4-converter.js';
-// import { Ern38Builder } from './json-to-xml/ern38-builder.js';
-// import { Ern4Builder } from './json-to-xml/ern4-builder.js';
+import { Ern38Converter } from './xml-to-json/ern38-converter.js';
+import { Ern38Builder } from './json-to-xml/ern38-builder.js';
 
 export class ConverterFactory {
   private constructor() {}
 
-  static createXmlToJsonConverter(_version: ErnVersion): XmlToJsonConverter {
-    const _major = getMajorVersion(_version);
-    // TODO: implement
-    throw new Error('Not implemented');
+  static createXmlToJsonConverter(version: ErnVersion): XmlToJsonConverter {
+    const major = getMajorVersion(version);
+    switch (major) {
+      case '3.8':
+        return new Ern38Converter();
+      case '4':
+        throw new Error('ERN 4.x converter is not yet implemented');
+    }
   }
 
-  static createJsonToXmlBuilder(_version: ErnVersion): JsonToXmlBuilder {
-    const _major = getMajorVersion(_version);
-    // TODO: implement
-    throw new Error('Not implemented');
+  static createJsonToXmlBuilder(version: ErnVersion): JsonToXmlBuilder {
+    const major = getMajorVersion(version);
+    switch (major) {
+      case '3.8':
+        return new Ern38Builder();
+      case '4':
+        throw new Error('ERN 4.x builder is not yet implemented');
+    }
   }
 }

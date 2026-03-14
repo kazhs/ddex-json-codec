@@ -22,3 +22,18 @@ export interface DisplayArtist {
   artist: Artist;
   sequenceNumber?: number;
 }
+
+export interface ResourceContributor {
+  name: string;
+  role: string;
+  sequenceNumber?: number;
+  /** UserDefined時の属性 */
+  roleNamespace?: string;
+  roleUserDefinedValue?: string;
+}
+
+export interface IndirectResourceContributor {
+  name: string;
+  role: string;
+  sequenceNumber?: number;
+}
