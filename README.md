@@ -5,7 +5,7 @@ DDEX ERN規格のXML/JSON相互変換ライブラリ（TypeScript）
 ## 特徴
 
 - ERN XMLからTypeScript型付きオブジェクトへの変換、およびその逆変換
-- ERN 3.8系 / 4系に対応（4系は未実装）
+- ERN 3.8系 (3.8〜3.8.3) / 4系 (4.1〜4.3.2) に対応
 - バージョン自動検出
 - [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser) ベース
 - Node.js >= 20
@@ -56,12 +56,12 @@ const version = detectVersion(xmlString); // "3.8.1"
 | 3.8.1 | 実装済み |
 | 3.8.2 | 実装済み |
 | 3.8.3 | 実装済み |
-| 4.1 | 未実装 |
-| 4.1.1 | 未実装 |
-| 4.2 | 未実装 |
-| 4.3 | 未実装 |
-| 4.3.1 | 未実装 |
-| 4.3.2 | 未実装 |
+| 4.1 | 実装済み |
+| 4.1.1 | 実装済み |
+| 4.2 | 実装済み |
+| 4.3 | 実装済み |
+| 4.3.1 | 実装済み |
+| 4.3.2 | 実装済み |
 
 ## API リファレンス
 
@@ -97,8 +97,8 @@ interface DdexMessage {
 `DdexMessage`, `ErnVersion`, `ErnMajorVersion`, `MessageHeader`, `MessageParty`,
 `SoundRecording`, `Release`, `TrackRelease`, `ResourceGroup`, `ReleaseResourceReference`,
 `ReleaseDeal`, `Deal`, `DealTerms`, `Usage`,
-`Party`, `Artist`, `DisplayArtist`, `ResourceContributor`, `IndirectResourceContributor`,
-`TextWithAttribute`, `Genre`, `PLine`, `CLine`, `Title`
+`Party`, `Artist`, `DisplayArtist`, `ResourceContributor`, `IndirectResourceContributor`, `Contributor`,
+`TextWithAttribute`, `Genre`, `PLine`, `CLine`, `Title`, `DisplayTitle`
 
 ## ライセンス
 
