@@ -87,7 +87,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
       result.SoundRecordingId = id;
     }
     result.ResourceReference = sr.resourceReference;
-    result.ReferenceTitle = this.buildReferenceTitle(sr.referenceTitle);
+    if (sr.referenceTitle) result.ReferenceTitle = this.buildReferenceTitle(sr.referenceTitle);
     if (sr.languageOfPerformance) result.LanguageOfPerformance = sr.languageOfPerformance;
     if (sr.duration) result.Duration = sr.duration;
     if (sr.detailsByTerritory) {
@@ -129,7 +129,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     const result: Raw = {};
     if (r.releaseId) result.ReleaseId = this.buildReleaseId(r.releaseId);
     result.ReleaseReference = r.releaseReference;
-    result.ReferenceTitle = this.buildReferenceTitle(r.referenceTitle);
+    if (r.referenceTitle) result.ReferenceTitle = this.buildReferenceTitle(r.referenceTitle);
     if (r.releaseResourceReferences) {
       result.ReleaseResourceReferenceList = {
         ReleaseResourceReference: r.releaseResourceReferences.map(ref => this.buildReleaseResourceReference(ref)),

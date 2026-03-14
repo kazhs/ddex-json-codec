@@ -6,6 +6,7 @@ export interface Party {
 
 export interface PartyName {
   fullName: string;
+  fullNameIndexed?: string;
   languageAndScriptCode?: string;
 }
 
@@ -34,6 +35,15 @@ export interface ResourceContributor {
 
 export interface IndirectResourceContributor {
   name: string;
+  role: string;
+  sequenceNumber?: number;
+}
+
+/** 4系: PartyReference参照のContributor */
+export interface Contributor {
+  contributorPartyReference: string;
+  /** PartyList解決後に埋める */
+  name?: string;
   role: string;
   sequenceNumber?: number;
 }

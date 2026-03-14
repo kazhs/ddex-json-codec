@@ -33,6 +33,15 @@ const ALWAYS_ARRAY_TAGS = new Set([
   'ReleaseDetailsByTerritory',
   'ImageDetailsByTerritory',
   'DealReleaseReference',
+  // 4系で追加
+  'DisplayTitle',
+  'AdditionalTitle',
+  'DisplayArtistName',
+  'Contributor',
+  'TrackRelease',
+  'Party',
+  'LinkedReleaseResourceReference',
+  'Video',
 ]);
 
 /**

@@ -30,3 +30,12 @@ export interface Genre {
   genreText: string;
   subGenre?: string;
 }
+
+/** 4系: DisplayTitle（territory+lang属性付き） */
+export interface DisplayTitle {
+  titleText: string;
+  subTitle?: string;
+  applicableTerritoryCode?: string;
+  languageAndScriptCode?: string;
+  isDefault?: boolean;
+}
