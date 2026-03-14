@@ -11,7 +11,10 @@ export interface Deal {
 
 export interface DealTerms {
   commercialModelType?: string;
+  /** 3.8系: Usage > UseType[] */
   usage?: Usage;
+  /** 4系: UseType[] 直下 */
+  useTypes?: string[];
   territoryCode?: string[];
   validityPeriod?: ValidityPeriod;
   priceInformation?: PriceInformation;

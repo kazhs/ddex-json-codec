@@ -3,7 +3,9 @@ import { getMajorVersion } from '../version/detect.js';
 import type { XmlToJsonConverter } from './xml-to-json/index.js';
 import type { JsonToXmlBuilder } from './json-to-xml/index.js';
 import { Ern38Converter } from './xml-to-json/ern38-converter.js';
+import { Ern4Converter } from './xml-to-json/ern4-converter.js';
 import { Ern38Builder } from './json-to-xml/ern38-builder.js';
+import { Ern4Builder } from './json-to-xml/ern4-builder.js';
 
 export class ConverterFactory {
   private constructor() {}
@@ -14,7 +16,7 @@ export class ConverterFactory {
       case '3.8':
         return new Ern38Converter();
       case '4':
-        throw new Error('ERN 4.x converter is not yet implemented');
+        return new Ern4Converter();
     }
   }
 
@@ -24,7 +26,7 @@ export class ConverterFactory {
       case '3.8':
         return new Ern38Builder();
       case '4':
-        throw new Error('ERN 4.x builder is not yet implemented');
+        return new Ern4Builder();
     }
   }
 }
