@@ -303,10 +303,12 @@ export class Ern38Converter implements XmlToJsonConverter {
       let role: string;
       let roleNamespace: string | undefined;
       let roleUserDefinedValue: string | undefined;
-      if (typeof roleRaw === 'string') {
+      if (!roleRaw) {
+        role = c.InstrumentType ?? '';
+      } else if (typeof roleRaw === 'string') {
         role = roleRaw;
       } else {
-        role = roleRaw['#text'] ?? roleRaw;
+        role = roleRaw['#text'] ?? '';
         roleNamespace = roleRaw['@_Namespace'] ?? undefined;
         roleUserDefinedValue = roleRaw['@_UserDefinedValue'] ?? undefined;
       }
