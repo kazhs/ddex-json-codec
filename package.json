@@ -13,7 +13,16 @@
     "url": "https://github.com/kazhs/ddex-json-codec/issues"
   },
   "homepage": "https://github.com/kazhs/ddex-json-codec#readme",
-  "keywords": ["ddex", "ern", "xml", "json", "music", "metadata", "converter", "codec"],
+  "keywords": [
+    "ddex",
+    "ern",
+    "xml",
+    "json",
+    "music",
+    "metadata",
+    "converter",
+    "codec"
+  ],
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
