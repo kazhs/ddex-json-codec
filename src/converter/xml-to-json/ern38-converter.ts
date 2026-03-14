@@ -174,7 +174,7 @@ export class Ern38Converter implements XmlToJsonConverter {
     return {
       territoryCode: ensureArray(raw.TerritoryCode),
       displayArtists: this.parseDisplayArtists(raw.DisplayArtist),
-      displayArtistName: raw.DisplayArtistName ?? undefined,
+      displayArtistName: Array.isArray(raw.DisplayArtistName) ? raw.DisplayArtistName[0] : (raw.DisplayArtistName ?? undefined),
       titles: this.parseTitles(raw.Title),
       labelName: raw.LabelName ?? undefined,
       genre: raw.Genre ? this.parseGenre(ensureArray(raw.Genre)[0]) : undefined,
