@@ -1,16 +1,16 @@
 # ddex-json-codec
 
-DDEX ERN規格のXML/JSON相互変換ライブラリ（TypeScript）
+Bidirectional XML/JSON codec for the DDEX ERN (Electronic Release Notification) standard, written in TypeScript.
 
-## 特徴
+## Features
 
-- ERN XMLからTypeScript型付きオブジェクトへの変換、およびその逆変換
-- ERN 3.8系 (3.8〜3.8.3) / 4系 (4.1〜4.3.2) に対応
-- バージョン自動検出
-- [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser) ベース
+- Convert ERN XML to typed TypeScript objects and back
+- Supports ERN 3.8.x (3.8 - 3.8.3) and ERN 4.x (4.1 - 4.3.2)
+- Automatic version detection from namespace URI
+- Built on [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser)
 - Node.js >= 20
 
-## インストール
+## Install
 
 ```bash
 npm install ddex-json-codec
@@ -18,66 +18,66 @@ npm install ddex-json-codec
 pnpm add ddex-json-codec
 ```
 
-## 使い方
+## Usage
 
-### XML → JSON
+### XML to JSON
 
 ```typescript
 import { xmlToJson } from 'ddex-json-codec';
 
 const message = xmlToJson(xmlString);
-console.log(message.ernVersion); // "3.8.1"
+console.log(message.ernVersion); // "3.8.2"
 console.log(message.resourceList); // SoundRecording[]
 ```
 
-### JSON → XML
+### JSON to XML
 
 ```typescript
 import { jsonToXml } from 'ddex-json-codec';
 
 const xml = jsonToXml(message);
-// バージョン指定も可
+// Optionally specify a target version
 const xml382 = jsonToXml(message, '3.8.2');
 ```
 
-### バージョン検出
+### Version Detection
 
 ```typescript
 import { detectVersion } from 'ddex-json-codec';
 
-const version = detectVersion(xmlString); // "3.8.1"
+const version = detectVersion(xmlString); // "4.3"
 ```
 
-## 対応バージョン
+## Supported Versions
 
-| ERN バージョン | 状態 |
+| ERN Version | Status |
 |---|---|
-| 3.8 | 実装済み |
-| 3.8.1 | 実装済み |
-| 3.8.2 | 実装済み |
-| 3.8.3 | 実装済み |
-| 4.1 | 実装済み |
-| 4.1.1 | 実装済み |
-| 4.2 | 実装済み |
-| 4.3 | 実装済み |
-| 4.3.1 | 実装済み |
-| 4.3.2 | 実装済み |
+| 3.8 | Supported |
+| 3.8.1 | Supported |
+| 3.8.2 | Supported |
+| 3.8.3 | Supported |
+| 4.1 | Supported |
+| 4.1.1 | Supported |
+| 4.2 | Supported |
+| 4.3 | Supported |
+| 4.3.1 | Supported |
+| 4.3.2 | Supported |
 
-## API リファレンス
+## API
 
 ### `xmlToJson(xml: string): DdexMessage`
 
-ERN XMLを解析し、型付きオブジェクトを返す。バージョンは自動検出される。
+Parse an ERN XML string into a typed object. Version is auto-detected.
 
 ### `jsonToXml(message: DdexMessage, version?: ErnVersion): string`
 
-`DdexMessage` をERN XMLに変換する。`version` 省略時は `message.ernVersion` を使用。
+Convert a `DdexMessage` back to an ERN XML string. Falls back to `message.ernVersion` when `version` is omitted.
 
 ### `detectVersion(xml: string): ErnVersion`
 
-ERN XMLのnamespace URIからバージョンを検出して返す。
+Detect the ERN version from namespace URI or `MessageSchemaVersionId` attribute.
 
-### 型
+### Types
 
 ```typescript
 interface DdexMessage {
@@ -87,12 +87,12 @@ interface DdexMessage {
   resourceList: SoundRecording[];
   releaseList: Release[];
   dealList: ReleaseDeal[];
-  partyList?: Party[];              // 4系のみ
-  trackReleaseList?: TrackRelease[]; // 4系のみ
+  partyList?: Party[];              // ERN 4.x only
+  trackReleaseList?: TrackRelease[]; // ERN 4.x only
 }
 ```
 
-エクスポートされる型一覧:
+Exported types:
 
 `DdexMessage`, `ErnVersion`, `ErnMajorVersion`, `MessageHeader`, `MessageParty`,
 `SoundRecording`, `Release`, `TrackRelease`, `ResourceGroup`, `ReleaseResourceReference`,
@@ -100,6 +100,6 @@ interface DdexMessage {
 `Party`, `Artist`, `DisplayArtist`, `ResourceContributor`, `IndirectResourceContributor`, `Contributor`,
 `TextWithAttribute`, `Genre`, `PLine`, `CLine`, `Title`, `DisplayTitle`
 
-## ライセンス
+## License
 
 [MIT](./LICENSE.md)
