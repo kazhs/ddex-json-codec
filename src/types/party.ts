@@ -10,13 +10,22 @@ export interface PartyName {
   languageAndScriptCode?: string;
 }
 
+export interface ArtistRole {
+  role: string;
+  /** UserDefined時の属性 */
+  namespace?: string;
+  userDefinedValue?: string;
+}
+
 export interface Artist {
-  /** 解決済みの名前（3.8系: FullNameから直接取得、4系: PartyListから解決） */
+  /** 解決済みのデフォルト名（3.8系: FullNameから直接取得、4系: PartyListの最初のFullName） */
   name: string;
+  /** 4系のみ: 多言語名（PartyListのPartyName[]をそのまま保持） */
+  names?: PartyName[];
   /** 4系のみ: 元の参照ID（ラウンドトリップ用） */
   partyReference?: string;
   partyId?: string[];
-  roles?: string[];
+  roles?: ArtistRole[];
 }
 
 export interface DisplayArtist {

@@ -3,7 +3,7 @@ import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../..
 import type { SoundRecording, SoundRecordingDetailsByTerritory, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
 import type { Release, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, ReferenceTitle as ReleaseReferenceTitle } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -102,6 +102,7 @@ export class Ern38Converter implements XmlToJsonConverter {
     return {
       territoryCode: ensureArray(raw.TerritoryCode),
       displayArtists: this.parseDisplayArtists(raw.DisplayArtist),
+      displayArtistName: Array.isArray(raw.DisplayArtistName) ? raw.DisplayArtistName[0] : (raw.DisplayArtistName ?? undefined),
       titles: this.parseTitles(raw.Title),
       labelName: raw.LabelName ?? undefined,
       pLine: raw.PLine ? this.parsePLine(ensureArray(raw.PLine)[0]) : undefined,
@@ -288,10 +289,23 @@ export class Ern38Converter implements XmlToJsonConverter {
     return artists.map((a: Raw) => ({
       artist: {
         name: a.PartyName?.FullName ?? '',
-        roles: a.ArtistRole ? ensureArray(a.ArtistRole) : undefined,
+        roles: a.ArtistRole ? this.parseArtistRoles(a.ArtistRole) : undefined,
       },
       sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
     }));
+  }
+
+  private parseArtistRoles(raw: Raw): ArtistRole[] {
+    return ensureArray(raw).map((r: Raw) => {
+      if (typeof r === 'string') {
+        return { role: r };
+      }
+      return {
+        role: r['#text'] ?? '',
+        namespace: r['@_Namespace'] ?? undefined,
+        userDefinedValue: r['@_UserDefinedValue'] ?? undefined,
+      };
+    });
   }
 
   private parseResourceContributors(raw: Raw): ResourceContributor[] | undefined {

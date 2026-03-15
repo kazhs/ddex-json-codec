@@ -34,6 +34,7 @@ export interface ReferenceTitle {
 export interface SoundRecordingDetailsByTerritory {
   territoryCode: string[];
   displayArtists?: DisplayArtist[];
+  displayArtistName?: string;
   titles?: Title[];
   labelName?: string;
   pLine?: PLine;

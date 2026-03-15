@@ -40,10 +40,10 @@ describe('XML→JSON: ern382-single.xml', () => {
     const sr = msg.resourceList[0];
     expect(sr.displayArtists).toHaveLength(2);
     expect(sr.displayArtists[0].artist.name).toBe('Technica');
-    expect(sr.displayArtists[0].artist.roles).toContain('MainArtist');
+    expect(sr.displayArtists[0].artist.roles).toContainEqual({ role: 'MainArtist' });
     expect(sr.displayArtists[0].sequenceNumber).toBe(1);
     expect(sr.displayArtists[1].artist.name).toBe('N/A');
-    expect(sr.displayArtists[1].artist.roles).toContain('Composer');
+    expect(sr.displayArtists[1].artist.roles).toContainEqual({ role: 'Composer' });
   });
 
   test('SoundRecording detailsByTerritory', () => {

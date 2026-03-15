@@ -41,7 +41,7 @@ describe('XML→JSON: ERN 4.2 single', () => {
     expect(release.displayArtists).toHaveLength(1);
     expect(release.displayArtists[0].artist.name).toBe('Ash');
     expect(release.displayArtists[0].artist.partyReference).toBe('PAsh');
-    expect(release.displayArtists[0].artist.roles).toContain('MainArtist');
+    expect(release.displayArtists[0].artist.roles).toContainEqual({ role: 'MainArtist' });
   });
 
   test('Release ReleaseLabelReference', () => {
@@ -94,6 +94,15 @@ describe('XML→JSON: ERN 4.2 album', () => {
     expect(sr.displayArtists).toHaveLength(1);
     expect(sr.displayArtists[0].artist.name).toBe('Saeko Shu');
     expect(sr.displayArtists[0].artist.partyReference).toBe('PSaekoShu');
+  });
+
+  test('SoundRecording DisplayArtist multilingual names', () => {
+    const sr = msg.resourceList[0];
+    const artist = sr.displayArtists[0].artist;
+    expect(artist.names).toHaveLength(2);
+    expect(artist.names![0].fullName).toBe('Saeko Shu');
+    expect(artist.names![1].fullName).toBe('しゅうさえこ');
+    expect(artist.names![1].languageAndScriptCode).toBe('ja-Jpan');
   });
 
   test('SoundRecording Contributor', () => {

@@ -3,7 +3,7 @@ import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../..
 import type { SoundRecording, SoundRecordingId } from '../../types/sound-recording.js';
 import type { Release, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -80,10 +80,13 @@ export class Ern4Converter implements XmlToJsonConverter {
     };
   }
 
-  private resolveArtistName(partyReference: string): string {
+  private resolveParty(partyReference: string): { name: string; names?: PartyName[] } {
     const party = this.partyIndex.get(partyReference);
-    if (!party?.partyName?.length) return partyReference;
-    return party.partyName[0].fullName;
+    if (!party?.partyName?.length) return { name: partyReference };
+    return {
+      name: party.partyName[0].fullName,
+      names: party.partyName.length > 1 ? party.partyName : undefined,
+    };
   }
 
   // --- MessageHeader ---
@@ -358,14 +361,28 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (artists.length === 0) return undefined;
     return artists.map((a: Raw) => {
       const partyRef = a.ArtistPartyReference;
-      const name = partyRef ? this.resolveArtistName(partyRef) : (a.PartyName?.FullName ?? '');
+      const resolved = partyRef ? this.resolveParty(partyRef) : { name: a.PartyName?.FullName ?? '' };
       return {
         artist: {
-          name,
+          name: resolved.name,
+          names: resolved.names,
           partyReference: partyRef ?? undefined,
-          roles: a.DisplayArtistRole ? ensureArray(a.DisplayArtistRole) : undefined,
+          roles: a.DisplayArtistRole ? this.parseArtistRoles(a.DisplayArtistRole) : undefined,
         },
         sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
+      };
+    });
+  }
+
+  private parseArtistRoles(raw: Raw): ArtistRole[] {
+    return ensureArray(raw).map((r: Raw) => {
+      if (typeof r === 'string') {
+        return { role: r };
+      }
+      return {
+        role: r['#text'] ?? '',
+        namespace: r['@_Namespace'] ?? undefined,
+        userDefinedValue: r['@_UserDefinedValue'] ?? undefined,
       };
     });
   }
@@ -376,7 +393,7 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (contributors.length === 0) return undefined;
     return contributors.map((c: Raw) => {
       const partyRef = c.ContributorPartyReference;
-      const name = partyRef ? this.resolveArtistName(partyRef) : undefined;
+      const name = partyRef ? this.resolveParty(partyRef).name : undefined;
       return {
         contributorPartyReference: partyRef ?? '',
         name,

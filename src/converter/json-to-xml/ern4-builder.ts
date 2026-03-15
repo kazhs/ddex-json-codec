@@ -4,7 +4,7 @@ import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../..
 import type { SoundRecording } from '../../types/sound-recording.js';
 import type { Release, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { DisplayArtist, Party, Contributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, Party, Contributor } from '../../types/party.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { VERSION_NAMESPACE_MAP } from '../../version/namespaces.js';
 import { BUILDER_OPTIONS } from '../utils.js';
@@ -260,9 +260,21 @@ export class Ern4Builder implements JsonToXmlBuilder {
       result.ArtistPartyReference = da.artist.partyReference;
     }
     if (da.artist.roles?.length) {
-      result.DisplayArtistRole = da.artist.roles.length === 1 ? da.artist.roles[0] : da.artist.roles;
+      const builtRoles = da.artist.roles.map(r => this.buildArtistRole(r));
+      result.DisplayArtistRole = builtRoles.length === 1 ? builtRoles[0] : builtRoles;
     }
     return result;
+  }
+
+  private buildArtistRole(r: ArtistRole): Raw {
+    if (r.userDefinedValue) {
+      return {
+        '#text': r.role,
+        ...(r.namespace ? { '@_Namespace': r.namespace } : {}),
+        '@_UserDefinedValue': r.userDefinedValue,
+      };
+    }
+    return r.role;
   }
 
   private buildContributor(c: Contributor): Raw {

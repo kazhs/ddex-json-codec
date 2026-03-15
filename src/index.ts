@@ -13,5 +13,5 @@ export type {
 export type { SoundRecording } from './types/sound-recording.js';
 export type { Release, TrackRelease, ResourceGroup, ReleaseResourceReference } from './types/release.js';
 export type { ReleaseDeal, Deal, DealTerms, Usage } from './types/deal.js';
-export type { Party, Artist, DisplayArtist, ResourceContributor, IndirectResourceContributor, Contributor } from './types/party.js';
+export type { Party, Artist, ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor, Contributor } from './types/party.js';
 export type { TextWithAttribute, Genre, PLine, CLine, Title, DisplayTitle } from './types/common.js';
