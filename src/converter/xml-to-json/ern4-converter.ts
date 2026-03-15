@@ -3,7 +3,8 @@ import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../..
 import type { SoundRecording, SoundRecordingId } from '../../types/sound-recording.js';
 import type { Release, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
+import type { Image } from '../../types/image.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -27,6 +28,7 @@ export class Ern4Converter implements XmlToJsonConverter {
       ernVersion: version,
       messageHeader: this.parseMessageHeader(root.MessageHeader),
       resourceList: this.parseSoundRecordings(root.ResourceList),
+      imageList: this.parseImages(root.ResourceList),
       releaseList: this.parseReleases(root.ReleaseList),
       dealList: this.parseDealList(root.DealList),
       partyList,
@@ -80,10 +82,13 @@ export class Ern4Converter implements XmlToJsonConverter {
     };
   }
 
-  private resolveArtistName(partyReference: string): string {
+  private resolveParty(partyReference: string): { name: string; names?: PartyName[] } {
     const party = this.partyIndex.get(partyReference);
-    if (!party?.partyName?.length) return partyReference;
-    return party.partyName[0].fullName;
+    if (!party?.partyName?.length) return { name: partyReference };
+    return {
+      name: party.partyName[0].fullName,
+      names: party.partyName.length > 1 ? party.partyName : undefined,
+    };
   }
 
   // --- MessageHeader ---
@@ -166,6 +171,50 @@ export class Ern4Converter implements XmlToJsonConverter {
       isrc: raw.ISRC ?? undefined,
       catalogNumber: raw.CatalogNumber ?? undefined,
     };
+  }
+
+  // --- Image ---
+
+  private parseImages(resourceList: Raw): Image[] | undefined {
+    if (!resourceList) return undefined;
+    const images = ensureArray(resourceList.Image);
+    if (images.length === 0) return undefined;
+    return images.map((img: Raw) => {
+      const result: Image = {
+        resourceReference: img.ResourceReference,
+        type: img.Type ?? undefined,
+        parentalWarningType: img.ParentalWarningType ?? undefined,
+      };
+      // 4系: ResourceId は直下
+      if (img.ResourceId) {
+        const propId = img.ResourceId.ProprietaryId;
+        if (propId) {
+          result.imageId = {
+            proprietaryId: typeof propId === 'string' ? propId : propId['#text'] ?? '',
+            proprietaryIdNamespace: typeof propId === 'object' ? propId['@_Namespace'] ?? undefined : undefined,
+          };
+        }
+      }
+      // 4系: TechnicalDetails は直下
+      if (img.TechnicalDetails) {
+        const td = Array.isArray(img.TechnicalDetails) ? img.TechnicalDetails[0] : img.TechnicalDetails;
+        result.technicalDetails = {
+          technicalResourceDetailsReference: td.TechnicalResourceDetailsReference ?? undefined,
+          imageCodecType: td.ImageCodecType ?? undefined,
+          imageHeight: td.ImageHeight ? Number(td.ImageHeight) : undefined,
+          imageWidth: td.ImageWidth ? Number(td.ImageWidth) : undefined,
+          file: td.File ? {
+            uri: td.File.URI ?? undefined,
+            fileName: td.File.FileName ?? undefined,
+            hashSum: td.File.HashSum ? {
+              algorithm: td.File.HashSum.Algorithm ?? undefined,
+              hashSumValue: td.File.HashSum.HashSumValue ?? undefined,
+            } : undefined,
+          } : undefined,
+        };
+      }
+      return result;
+    });
   }
 
   // --- Release ---
@@ -358,14 +407,28 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (artists.length === 0) return undefined;
     return artists.map((a: Raw) => {
       const partyRef = a.ArtistPartyReference;
-      const name = partyRef ? this.resolveArtistName(partyRef) : (a.PartyName?.FullName ?? '');
+      const resolved = partyRef ? this.resolveParty(partyRef) : { name: a.PartyName?.FullName ?? '', names: undefined };
       return {
         artist: {
-          name,
+          name: resolved.name,
+          names: resolved.names,
           partyReference: partyRef ?? undefined,
-          roles: a.DisplayArtistRole ? ensureArray(a.DisplayArtistRole) : undefined,
+          roles: a.DisplayArtistRole ? this.parseArtistRoles(a.DisplayArtistRole) : undefined,
         },
         sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
+      };
+    });
+  }
+
+  private parseArtistRoles(raw: Raw): ArtistRole[] {
+    return ensureArray(raw).map((r: Raw) => {
+      if (typeof r === 'string') {
+        return { role: r };
+      }
+      return {
+        role: r['#text'] ?? '',
+        namespace: r['@_Namespace'] ?? undefined,
+        userDefinedValue: r['@_UserDefinedValue'] ?? undefined,
       };
     });
   }
@@ -376,7 +439,7 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (contributors.length === 0) return undefined;
     return contributors.map((c: Raw) => {
       const partyRef = c.ContributorPartyReference;
-      const name = partyRef ? this.resolveArtistName(partyRef) : undefined;
+      const name = partyRef ? this.resolveParty(partyRef).name : undefined;
       return {
         contributorPartyReference: partyRef ?? '',
         name,

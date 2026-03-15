@@ -1,9 +1,10 @@
 import type { XmlToJsonConverter } from './index.js';
 import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording, SoundRecordingDetailsByTerritory, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
+import type { SoundRecording, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
 import type { Release, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, ReferenceTitle as ReleaseReferenceTitle } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
+import type { Image, ImageDetailsByTerritory, TechnicalImageDetails, FileDetails, HashSum } from '../../types/image.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -22,6 +23,7 @@ export class Ern38Converter implements XmlToJsonConverter {
       messageHeader: this.parseMessageHeader(root.MessageHeader),
       updateIndicator: root.UpdateIndicator ?? undefined,
       resourceList: this.parseSoundRecordings(root.ResourceList),
+      imageList: this.parseImages(root.ResourceList),
       releaseList: this.parseReleases(root.ReleaseList),
       dealList: this.parseDealList(root.DealList),
     };
@@ -102,6 +104,7 @@ export class Ern38Converter implements XmlToJsonConverter {
     return {
       territoryCode: ensureArray(raw.TerritoryCode),
       displayArtists: this.parseDisplayArtists(raw.DisplayArtist),
+      displayArtistName: Array.isArray(raw.DisplayArtistName) ? raw.DisplayArtistName[0] : (raw.DisplayArtistName ?? undefined),
       titles: this.parseTitles(raw.Title),
       labelName: raw.LabelName ?? undefined,
       pLine: raw.PLine ? this.parsePLine(ensureArray(raw.PLine)[0]) : undefined,
@@ -110,6 +113,89 @@ export class Ern38Converter implements XmlToJsonConverter {
       sequenceNumber: raw.SequenceNumber ? Number(raw.SequenceNumber) : undefined,
       resourceContributors: this.parseResourceContributors(raw.ResourceContributor),
       indirectResourceContributors: this.parseIndirectResourceContributors(raw.IndirectResourceContributor),
+      technicalDetails: raw.TechnicalSoundRecordingDetails
+        ? ensureArray(raw.TechnicalSoundRecordingDetails).map((td: Raw) => this.parseTechnicalSoundRecordingDetails(td))
+        : undefined,
+    };
+  }
+
+  private parseTechnicalSoundRecordingDetails(raw: Raw): TechnicalSoundRecordingDetails {
+    const bitRate = raw.BitRate;
+    const samplingRate = raw.SamplingRate;
+    return {
+      technicalResourceDetailsReference: raw.TechnicalResourceDetailsReference ?? undefined,
+      audioCodecType: raw.AudioCodecType ?? undefined,
+      bitRate: bitRate ? Number(typeof bitRate === 'string' ? bitRate : bitRate['#text']) : undefined,
+      bitRateUnit: typeof bitRate === 'object' ? bitRate['@_UnitOfMeasure'] ?? undefined : undefined,
+      numberOfChannels: raw.NumberOfChannels ? Number(raw.NumberOfChannels) : undefined,
+      samplingRate: samplingRate ? Number(typeof samplingRate === 'string' ? samplingRate : samplingRate['#text']) : undefined,
+      samplingRateUnit: typeof samplingRate === 'object' ? samplingRate['@_UnitOfMeasure'] ?? undefined : undefined,
+      isPreview: raw.IsPreview === 'true' ? true : raw.IsPreview === 'false' ? false : undefined,
+      file: raw.File ? this.parseFileDetails(raw.File) : undefined,
+    };
+  }
+
+  // --- Image ---
+
+  private parseImages(resourceList: Raw): Image[] | undefined {
+    if (!resourceList) return undefined;
+    const images = ensureArray(resourceList.Image);
+    if (images.length === 0) return undefined;
+    return images.map((img: Raw) => this.parseImage(img));
+  }
+
+  private parseImage(raw: Raw): Image {
+    return {
+      resourceReference: raw.ResourceReference,
+      type: raw.ImageType ?? undefined,
+      imageId: raw.ImageId ? this.parseImageId(raw.ImageId) : undefined,
+      detailsByTerritory: raw.ImageDetailsByTerritory
+        ? ensureArray(raw.ImageDetailsByTerritory).map((d: Raw) => this.parseImageDetailsByTerritory(d))
+        : undefined,
+    };
+  }
+
+  private parseImageId(raw: Raw): Image['imageId'] {
+    const propId = raw.ProprietaryId;
+    if (!propId) return undefined;
+    return {
+      proprietaryId: typeof propId === 'string' ? propId : propId['#text'] ?? '',
+      proprietaryIdNamespace: typeof propId === 'object' ? propId['@_Namespace'] ?? undefined : undefined,
+    };
+  }
+
+  private parseImageDetailsByTerritory(raw: Raw): ImageDetailsByTerritory {
+    return {
+      territoryCode: ensureArray(raw.TerritoryCode),
+      parentalWarningType: raw.ParentalWarningType ?? undefined,
+      technicalDetails: raw.TechnicalImageDetails
+        ? this.parseTechnicalImageDetails(Array.isArray(raw.TechnicalImageDetails) ? raw.TechnicalImageDetails[0] : raw.TechnicalImageDetails)
+        : undefined,
+    };
+  }
+
+  private parseTechnicalImageDetails(raw: Raw): TechnicalImageDetails {
+    return {
+      technicalResourceDetailsReference: raw.TechnicalResourceDetailsReference ?? undefined,
+      imageCodecType: raw.ImageCodecType ?? undefined,
+      imageHeight: raw.ImageHeight ? Number(raw.ImageHeight) : undefined,
+      imageWidth: raw.ImageWidth ? Number(raw.ImageWidth) : undefined,
+      file: raw.File ? this.parseFileDetails(raw.File) : undefined,
+    };
+  }
+
+  private parseFileDetails(raw: Raw): FileDetails {
+    return {
+      fileName: raw.FileName ?? undefined,
+      uri: raw.URI ?? undefined,
+      hashSum: raw.HashSum ? this.parseHashSum(raw.HashSum) : undefined,
+    };
+  }
+
+  private parseHashSum(raw: Raw): HashSum {
+    return {
+      algorithm: raw.HashSumAlgorithmType ?? raw.Algorithm ?? undefined,
+      hashSumValue: raw.HashSum ?? raw.HashSumValue ?? undefined,
     };
   }
 
@@ -288,10 +374,23 @@ export class Ern38Converter implements XmlToJsonConverter {
     return artists.map((a: Raw) => ({
       artist: {
         name: a.PartyName?.FullName ?? '',
-        roles: a.ArtistRole ? ensureArray(a.ArtistRole) : undefined,
+        roles: a.ArtistRole ? this.parseArtistRoles(a.ArtistRole) : undefined,
       },
       sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
     }));
+  }
+
+  private parseArtistRoles(raw: Raw): ArtistRole[] {
+    return ensureArray(raw).map((r: Raw) => {
+      if (typeof r === 'string') {
+        return { role: r };
+      }
+      return {
+        role: r['#text'] ?? '',
+        namespace: r['@_Namespace'] ?? undefined,
+        userDefinedValue: r['@_UserDefinedValue'] ?? undefined,
+      };
+    });
   }
 
   private parseResourceContributors(raw: Raw): ResourceContributor[] | undefined {

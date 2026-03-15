@@ -1,4 +1,5 @@
 import type { SoundRecording } from './sound-recording.js';
+import type { Image } from './image.js';
 import type { Release, TrackRelease } from './release.js';
 import type { ReleaseDeal } from './deal.js';
 import type { Party } from './party.js';
@@ -36,6 +37,7 @@ export interface DdexMessage {
   messageHeader: MessageHeader;
   updateIndicator?: string;
   resourceList: SoundRecording[];
+  imageList?: Image[];
   releaseList: Release[];
   dealList: ReleaseDeal[];
   /** 4系のみ: PartyList（ラウンドトリップ用に保持） */

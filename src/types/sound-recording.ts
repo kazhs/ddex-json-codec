@@ -1,5 +1,6 @@
 import type { DisplayTitle, Genre, PLine, Title } from './common.js';
 import type { Contributor, DisplayArtist, ResourceContributor, IndirectResourceContributor } from './party.js';
+import type { FileDetails } from './image.js';
 
 export interface SoundRecording {
   resourceReference: string;
@@ -31,9 +32,22 @@ export interface ReferenceTitle {
   subTitle?: string;
 }
 
+export interface TechnicalSoundRecordingDetails {
+  technicalResourceDetailsReference?: string;
+  audioCodecType?: string;
+  bitRate?: number;
+  bitRateUnit?: string;
+  numberOfChannels?: number;
+  samplingRate?: number;
+  samplingRateUnit?: string;
+  isPreview?: boolean;
+  file?: FileDetails;
+}
+
 export interface SoundRecordingDetailsByTerritory {
   territoryCode: string[];
   displayArtists?: DisplayArtist[];
+  displayArtistName?: string;
   titles?: Title[];
   labelName?: string;
   pLine?: PLine;
@@ -42,4 +56,5 @@ export interface SoundRecordingDetailsByTerritory {
   sequenceNumber?: number;
   resourceContributors?: ResourceContributor[];
   indirectResourceContributors?: IndirectResourceContributor[];
+  technicalDetails?: TechnicalSoundRecordingDetails[];
 }

@@ -41,7 +41,7 @@ describe('XML→JSON: ERN 4.2 single', () => {
     expect(release.displayArtists).toHaveLength(1);
     expect(release.displayArtists[0].artist.name).toBe('Ash');
     expect(release.displayArtists[0].artist.partyReference).toBe('PAsh');
-    expect(release.displayArtists[0].artist.roles).toContain('MainArtist');
+    expect(release.displayArtists[0].artist.roles).toContainEqual({ role: 'MainArtist' });
   });
 
   test('Release ReleaseLabelReference', () => {
@@ -96,12 +96,30 @@ describe('XML→JSON: ERN 4.2 album', () => {
     expect(sr.displayArtists[0].artist.partyReference).toBe('PSaekoShu');
   });
 
+  test('SoundRecording DisplayArtist multilingual names', () => {
+    const sr = msg.resourceList[0];
+    const artist = sr.displayArtists[0].artist;
+    expect(artist.names).toHaveLength(2);
+    expect(artist.names![0].fullName).toBe('Saeko Shu');
+    expect(artist.names![1].fullName).toBe('しゅうさえこ');
+    expect(artist.names![1].languageAndScriptCode).toBe('ja-Jpan');
+  });
+
   test('SoundRecording Contributor', () => {
     const sr = msg.resourceList[0];
     expect(sr.contributors).toHaveLength(1);
     expect(sr.contributors![0].contributorPartyReference).toBe('PSaekoShu');
     expect(sr.contributors![0].name).toBe('Saeko Shu');
     expect(sr.contributors![0].role).toBe('Artist');
+  });
+
+  test('Image resource', () => {
+    expect(msg.imageList).toHaveLength(1);
+    const img = msg.imageList![0];
+    expect(img.resourceReference).toBe('A3');
+    expect(img.type).toBe('FrontCoverImage');
+    expect(img.imageId?.proprietaryId).toBe('PACKSHOT:0094631432057');
+    expect(img.technicalDetails?.file?.uri).toBe('0094631432057.jpg');
   });
 
   test('TrackRelease list', () => {
