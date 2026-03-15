@@ -1,7 +1,7 @@
 {
   "name": "ddex-json-codec",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "DDEX ERN XML ↔ JSON converter for TypeScript",
   "license": "MIT",
   "author": "kazhs",
