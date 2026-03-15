@@ -85,6 +85,7 @@ interface DdexMessage {
   messageHeader: MessageHeader;
   updateIndicator?: string;
   resourceList: SoundRecording[];
+  imageList?: Image[];
   releaseList: Release[];
   dealList: ReleaseDeal[];
   partyList?: Party[];              // ERN 4.x only
@@ -95,9 +96,11 @@ interface DdexMessage {
 Exported types:
 
 `DdexMessage`, `ErnVersion`, `ErnMajorVersion`, `MessageHeader`, `MessageParty`,
-`SoundRecording`, `Release`, `TrackRelease`, `ResourceGroup`, `ReleaseResourceReference`,
+`SoundRecording`, `TechnicalSoundRecordingDetails`,
+`Image`, `ImageId`, `ImageDetailsByTerritory`, `TechnicalImageDetails`, `FileDetails`, `HashSum`,
+`Release`, `TrackRelease`, `ResourceGroup`, `ReleaseResourceReference`,
 `ReleaseDeal`, `Deal`, `DealTerms`, `Usage`,
-`Party`, `Artist`, `DisplayArtist`, `ResourceContributor`, `IndirectResourceContributor`, `Contributor`,
+`Party`, `Artist`, `ArtistRole`, `DisplayArtist`, `ResourceContributor`, `IndirectResourceContributor`, `Contributor`,
 `TextWithAttribute`, `Genre`, `PLine`, `CLine`, `Title`, `DisplayTitle`
 
 ## License

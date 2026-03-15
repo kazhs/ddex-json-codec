@@ -45,11 +45,12 @@ src/
   index.ts                                # 公開API エクスポート
   types/
     ern.ts                                # DdexMessage, ErnVersion, MessageHeader 等
-    sound-recording.ts                    # SoundRecording
+    sound-recording.ts                    # SoundRecording, TechnicalSoundRecordingDetails
+    image.ts                              # Image, ImageDetailsByTerritory, TechnicalImageDetails, FileDetails, HashSum
     release.ts                            # Release, TrackRelease, ResourceGroup
     deal.ts                               # ReleaseDeal, Deal, DealTerms, Usage
-    party.ts                              # Party, Artist, DisplayArtist, Contributor
-    common.ts                             # TextWithAttribute, Genre, PLine, CLine, Title
+    party.ts                              # Party, Artist, ArtistRole, DisplayArtist, Contributor
+    common.ts                             # TextWithAttribute, Genre, PLine, CLine, Title, DisplayTitle
   version/
     detect.ts                             # detectVersion(), getMajorVersion()
     namespaces.ts                         # namespace URI → ErnVersion マッピング
@@ -136,7 +137,7 @@ DdexMessage
 
 ## テスト
 
-85テスト（3.8系47 + 4系36 + bulk validation 2）。430件の実データで検証済み。
+90テスト（3.8系50 + 4系38 + bulk validation 2）。430件の実データで検証済み。
 
 テスト構成:
 - バージョン検出テスト
