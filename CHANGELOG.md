@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-03-15
+
+### Added
+- ERN 3.8系: 多言語 `PartyName` のパース/出力 — `Artist.names` に `LanguageAndScriptCode` 属性付き複数 `PartyName` を格納 (#2)
+- ERN 3.8系: `Title.languageAndScriptCode` フィールド — 言語別タイトルの出力に対応 (#2)
+
 ## [0.3.0] - 2026-03-15
 
 ### Breaking Changes
