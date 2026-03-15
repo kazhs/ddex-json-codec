@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ern:NewReleaseMessage xmlns:ern="http://ddex.net/xml/ern/382" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" MessageSchemaVersionId="ern/382" xsi:schemaLocation="http://ddex.net/xml/ern/382 http://ddex.net/xml/ern/382/release-notification.xsd">
+  <MessageHeader>
+    <MessageThreadId>2417334</MessageThreadId>
+    <MessageId>2417334_20241002_101032</MessageId>
+    <MessageFileName>5710261026118.xml</MessageFileName>
+    <MessageSender>
+      <PartyId IsDPID="true">PADPIDA2012041004F</PartyId>
+      <PartyName>
+        <FullName>The Orchard Enterprises</FullName>
+      </PartyName>
+      <TradingName>The Orchard Enterprises, LLC</TradingName>
+    </MessageSender>
+    <MessageRecipient>
+      <PartyId IsDPID="true"/>
+      <PartyName>
+        <FullName>MONSTAR LAB, INC.</FullName>
+      </PartyName>
+    </MessageRecipient>
+    <MessageCreatedDateTime>2024-10-02T10:10:32Z</MessageCreatedDateTime>
+  </MessageHeader>
+  <UpdateIndicator>UpdateMessage</UpdateIndicator>
+  <ResourceList>
+    <SoundRecording IsUpdated="true" LanguageAndScriptCode="en">
+      <SoundRecordingType>MusicalWorkSoundRecording</SoundRecordingType>
+      <IsArtistRelated>true</IsArtistRelated>
+      <SoundRecordingId>
+        <ISRC>DKFD52275001</ISRC>
+      </SoundRecordingId>
+      <ResourceReference>A1</ResourceReference>
+      <ReferenceTitle>
+        <TitleText>Allez Allez Allez</TitleText>
+        <SubTitle/>
+      </ReferenceTitle>
+      <LanguageOfPerformance>en</LanguageOfPerformance>
+      <Duration>PT0H3M8S</Duration>
+      <SoundRecordingDetailsByTerritory>
+        <TerritoryCode>Worldwide</TerritoryCode>
+        <Title TitleType="OriginalTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+          <SubTitle/>
+        </Title>
+        <Title TitleType="DisplayTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+          <SubTitle/>
+        </Title>
+        <DisplayArtist SequenceNumber="1">
+          <PartyName>
+            <FullName>Technica</FullName>
+          </PartyName>
+          <ArtistRole>MainArtist</ArtistRole>
+        </DisplayArtist>
+        <DisplayArtist SequenceNumber="2">
+          <PartyName>
+            <FullName>N/A</FullName>
+          </PartyName>
+          <ArtistRole>Composer</ArtistRole>
+        </DisplayArtist>
+        <LabelName>Technica</LabelName>
+        <PLine>
+          <Year>2016</Year>
+          <PLineText>(P) 2016 Technica</PLineText>
+        </PLine>
+        <SequenceNumber>1</SequenceNumber>
+        <Genre>
+          <GenreText>Pop</GenreText>
+          <SubGenre>Pop</SubGenre>
+        </Genre>
+        <ParentalWarningType>NotExplicit</ParentalWarningType>
+      </SoundRecordingDetailsByTerritory>
+    </SoundRecording>
+    <Image IsUpdated="true">
+      <ImageType>FrontCoverImage</ImageType>
+      <ImageId>
+        <ProprietaryId Namespace="DPID:PADPIDA2012041004F">IMAGE_COVER_5710261026118</ProprietaryId>
+      </ImageId>
+      <ResourceReference>A2</ResourceReference>
+      <ImageDetailsByTerritory>
+        <TerritoryCode>Worldwide</TerritoryCode>
+      </ImageDetailsByTerritory>
+    </Image>
+  </ResourceList>
+  <ReleaseList>
+    <Release LanguageAndScriptCode="en" IsMainRelease="true">
+      <ReleaseId>
+        <ICPN IsEan="true">5710261026118</ICPN>
+      </ReleaseId>
+      <ReleaseReference>R0</ReleaseReference>
+      <ReferenceTitle>
+        <TitleText>Allez Allez Allez</TitleText>
+      </ReferenceTitle>
+      <ReleaseResourceReferenceList>
+        <ReleaseResourceReference ReleaseResourceType="PrimaryResource">A1</ReleaseResourceReference>
+        <ReleaseResourceReference ReleaseResourceType="SecondaryResource">A2</ReleaseResourceReference>
+      </ReleaseResourceReferenceList>
+      <ReleaseType>Single</ReleaseType>
+      <ReleaseDetailsByTerritory>
+        <TerritoryCode>Worldwide</TerritoryCode>
+        <DisplayArtistName>Technica</DisplayArtistName>
+        <LabelName>Technica</LabelName>
+        <Title TitleType="FormalTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+        </Title>
+        <Title TitleType="DisplayTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+        </Title>
+        <DisplayArtist SequenceNumber="1">
+          <PartyName>
+            <FullName>Technica</FullName>
+          </PartyName>
+          <ArtistRole>MainArtist</ArtistRole>
+        </DisplayArtist>
+        <ParentalWarningType>NotExplicit</ParentalWarningType>
+        <ResourceGroup>
+          <ResourceGroup>
+            <Title>
+              <TitleText>Component 1</TitleText>
+            </Title>
+            <SequenceNumber>1</SequenceNumber>
+            <ResourceGroupContentItem>
+              <SequenceNumber>1</SequenceNumber>
+              <ResourceType>SoundRecording</ResourceType>
+              <ReleaseResourceReference ReleaseResourceType="PrimaryResource">A1</ReleaseResourceReference>
+            </ResourceGroupContentItem>
+          </ResourceGroup>
+          <ResourceGroupContentItem>
+            <ResourceType>Image</ResourceType>
+            <ReleaseResourceReference ReleaseResourceType="SecondaryResource">A2</ReleaseResourceReference>
+          </ResourceGroupContentItem>
+        </ResourceGroup>
+        <Genre>
+          <GenreText>Pop</GenreText>
+          <SubGenre>Pop</SubGenre>
+        </Genre>
+        <OriginalReleaseDate>2012-07-02</OriginalReleaseDate>
+      </ReleaseDetailsByTerritory>
+      <Duration>PT0H3M8S</Duration>
+      <PLine>
+        <Year>2016</Year>
+        <PLineText>(P) 2016 Technica</PLineText>
+      </PLine>
+      <CLine>
+        <Year>2016</Year>
+        <CLineText>(C) 2016 Technica</CLineText>
+      </CLine>
+    </Release>
+    <Release LanguageAndScriptCode="en">
+      <ReleaseId>
+        <ISRC>DKFD52275001</ISRC>
+      </ReleaseId>
+      <ReleaseReference>R1</ReleaseReference>
+      <ReferenceTitle>
+        <TitleText>Allez Allez Allez</TitleText>
+        <SubTitle/>
+      </ReferenceTitle>
+      <ReleaseResourceReferenceList>
+        <ReleaseResourceReference ReleaseResourceType="PrimaryResource">A1</ReleaseResourceReference>
+      </ReleaseResourceReferenceList>
+      <ReleaseType>TrackRelease</ReleaseType>
+      <ReleaseDetailsByTerritory>
+        <TerritoryCode>Worldwide</TerritoryCode>
+        <LabelName>Technica</LabelName>
+        <Title TitleType="FormalTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+          <SubTitle/>
+        </Title>
+        <Title TitleType="DisplayTitle">
+          <TitleText>Allez Allez Allez</TitleText>
+          <SubTitle/>
+        </Title>
+        <DisplayArtist SequenceNumber="1">
+          <PartyName>
+            <FullName>Technica</FullName>
+          </PartyName>
+          <ArtistRole>MainArtist</ArtistRole>
+        </DisplayArtist>
+        <DisplayArtist SequenceNumber="2">
+          <PartyName>
+            <FullName>N/A</FullName>
+          </PartyName>
+          <ArtistRole>Composer</ArtistRole>
+        </DisplayArtist>
+        <ParentalWarningType>NotExplicit</ParentalWarningType>
+        <ResourceGroup>
+          <ResourceGroup>
+            <ResourceGroupContentItem>
+              <SequenceNumber>1</SequenceNumber>
+              <ResourceType>SoundRecording</ResourceType>
+              <ReleaseResourceReference ReleaseResourceType="PrimaryResource">A1</ReleaseResourceReference>
+            </ResourceGroupContentItem>
+          </ResourceGroup>
+        </ResourceGroup>
+        <Genre>
+          <GenreText>Pop</GenreText>
+          <SubGenre>Pop</SubGenre>
+        </Genre>
+      </ReleaseDetailsByTerritory>
+      <PLine>
+        <Year>2016</Year>
+        <PLineText>(P) 2016 Technica</PLineText>
+      </PLine>
+    </Release>
+  </ReleaseList>
+  <DealList>
+    <ReleaseDeal>
+      <DealReleaseReference>R0</DealReleaseReference>
+      <Deal>
+        <DealTerms>
+          <TakeDown>true</TakeDown>
+          <TerritoryCode>JP</TerritoryCode>
+          <ValidityPeriod>
+            <StartDate>2019-01-14</StartDate>
+          </ValidityPeriod>
+        </DealTerms>
+      </Deal>
+      <EffectiveDate>2024-10-02</EffectiveDate>
+    </ReleaseDeal>
+    <ReleaseDeal>
+      <DealReleaseReference>R1</DealReleaseReference>
+      <Deal>
+        <DealTerms>
+          <TakeDown>true</TakeDown>
+          <TerritoryCode>JP</TerritoryCode>
+          <ValidityPeriod>
+            <StartDate>2019-01-14</StartDate>
+          </ValidityPeriod>
+        </DealTerms>
+      </Deal>
+      <EffectiveDate>2024-10-02</EffectiveDate>
+    </ReleaseDeal>
+  </DealList>
+</ern:NewReleaseMessage>
