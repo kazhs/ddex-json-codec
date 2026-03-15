@@ -343,7 +343,17 @@ export class Ern38Builder implements JsonToXmlBuilder {
   private buildDisplayArtist(da: DisplayArtist): Raw {
     const result: Raw = {};
     if (da.sequenceNumber != null) result['@_SequenceNumber'] = String(da.sequenceNumber);
-    result.PartyName = { FullName: da.artist.name };
+    if (da.artist.names?.length) {
+      result.PartyName = da.artist.names.map(pn => {
+        const r: Raw = {};
+        if (pn.languageAndScriptCode) r['@_LanguageAndScriptCode'] = pn.languageAndScriptCode;
+        r.FullName = pn.fullName;
+        if (pn.fullNameIndexed) r.FullNameIndexed = pn.fullNameIndexed;
+        return r;
+      });
+    } else {
+      result.PartyName = { FullName: da.artist.name };
+    }
     if (da.artist.roles?.length) {
       const builtRoles = da.artist.roles.map(r => this.buildArtistRole(r));
       result.ArtistRole = builtRoles.length === 1 ? builtRoles[0] : builtRoles;
@@ -390,6 +400,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
   private buildTitle(t: Title): Raw {
     const result: Raw = {};
     if (t.titleType) result['@_TitleType'] = t.titleType;
+    if (t.languageAndScriptCode) result['@_LanguageAndScriptCode'] = t.languageAndScriptCode;
     result.TitleText = t.titleText;
     if (t.subTitle) result.SubTitle = t.subTitle;
     return result;

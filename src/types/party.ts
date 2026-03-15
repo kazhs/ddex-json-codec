@@ -20,7 +20,7 @@ export interface ArtistRole {
 export interface Artist {
   /** 解決済みのデフォルト名（3.8系: FullNameから直接取得、4系: PartyListの最初のFullName） */
   name: string;
-  /** 4系のみ: 多言語名（PartyListのPartyName[]をそのまま保持） */
+  /** 多言語名（4系: PartyListから取得、3.8系: 複数PartyNameから取得） */
   names?: PartyName[];
   /** 4系のみ: 元の参照ID（ラウンドトリップ用） */
   partyReference?: string;

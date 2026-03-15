@@ -3,7 +3,7 @@ import type { DdexMessage38, ErnVersion, ErnVersion38, MessageHeader, MessagePar
 import type { SoundRecording38, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
 import type { Release38, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, ReferenceTitle as ReleaseReferenceTitle, ReleaseId } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
-import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
+import type { ArtistRole, DisplayArtist, PartyName, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
 import type { Image38, ImageDetailsByTerritory, TechnicalImageDetails, FileDetails, HashSum } from '../../types/image.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
@@ -384,13 +384,32 @@ export class Ern38Converter implements XmlToJsonConverter {
     if (!raw) return undefined;
     const artists = ensureArray(raw);
     if (artists.length === 0) return undefined;
-    return artists.map((a: Raw) => ({
-      artist: {
-        name: a.PartyName?.FullName ?? '',
-        roles: a.ArtistRole ? this.parseArtistRoles(a.ArtistRole) : undefined,
-      },
-      sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
-    }));
+    return artists.map((a: Raw) => {
+      const partyNames = ensureArray(a.PartyName);
+      const firstName = partyNames[0]?.FullName ?? '';
+      let names: PartyName[] | undefined;
+      if (partyNames.length > 1) {
+        names = partyNames.map((pn: Raw) => ({
+          fullName: pn.FullName ?? '',
+          fullNameIndexed: pn.FullNameIndexed ?? undefined,
+          languageAndScriptCode: pn['@_LanguageAndScriptCode'] ?? undefined,
+        }));
+      } else if (partyNames.length === 1 && partyNames[0]['@_LanguageAndScriptCode']) {
+        names = [{
+          fullName: firstName,
+          fullNameIndexed: partyNames[0].FullNameIndexed ?? undefined,
+          languageAndScriptCode: partyNames[0]['@_LanguageAndScriptCode'],
+        }];
+      }
+      return {
+        artist: {
+          name: firstName,
+          names,
+          roles: a.ArtistRole ? this.parseArtistRoles(a.ArtistRole) : undefined,
+        },
+        sequenceNumber: a['@_SequenceNumber'] ? Number(a['@_SequenceNumber']) : undefined,
+      };
+    });
   }
 
   private parseArtistRoles(raw: Raw): ArtistRole[] {
@@ -454,6 +473,7 @@ export class Ern38Converter implements XmlToJsonConverter {
       titleText: t.TitleText ?? '',
       subTitle: (t.SubTitle && t.SubTitle !== '') ? t.SubTitle : undefined,
       titleType: t['@_TitleType'] ?? undefined,
+      languageAndScriptCode: t['@_LanguageAndScriptCode'] ?? undefined,
     }));
   }
 

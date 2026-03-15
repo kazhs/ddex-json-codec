@@ -14,6 +14,7 @@ export interface Title {
   titleText: string;
   subTitle?: string;
   titleType?: string;
+  languageAndScriptCode?: string;
 }
 
 export interface PLine {

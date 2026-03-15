@@ -56,3 +56,54 @@ describe('JSON→XML: ern382-album', () => {
     expect(xml).toContain('UserDefinedValue="LeadVocalist"');
   });
 });
+
+describe('JSON→XML: ERN 3.8 multilingual PartyName', () => {
+  test('outputs multiple PartyName with LanguageAndScriptCode when names is set', () => {
+    const msg = xmlToJson(singleXml);
+    const dbt = msg.resourceList[0].detailsByTerritory;
+    if (dbt?.[0]) {
+      dbt[0].displayArtists = [{
+        artist: {
+          name: 'アド',
+          names: [
+            { fullName: 'アド', languageAndScriptCode: 'ja' },
+            { fullName: 'Ado', languageAndScriptCode: 'en' },
+          ],
+          roles: [{ role: 'MainArtist' }],
+        },
+        sequenceNumber: 1,
+      }];
+    }
+    const xml = jsonToXml(msg);
+    expect(xml).toContain('LanguageAndScriptCode="ja"');
+    expect(xml).toContain('LanguageAndScriptCode="en"');
+    expect(xml).toContain('<FullName>アド</FullName>');
+    expect(xml).toContain('<FullName>Ado</FullName>');
+  });
+
+  test('falls back to single PartyName when names is not set', () => {
+    const msg = xmlToJson(singleXml);
+    const xml = jsonToXml(msg);
+    expect(xml).toContain('<FullName>');
+    // Should not have LanguageAndScriptCode when names is not set
+    expect(xml).not.toMatch(/PartyName.*LanguageAndScriptCode/);
+  });
+});
+
+describe('JSON→XML: ERN 3.8 multilingual Title', () => {
+  test('outputs Title with LanguageAndScriptCode attribute', () => {
+    const msg = xmlToJson(singleXml);
+    const dbt = msg.resourceList[0].detailsByTerritory;
+    if (dbt?.[0]) {
+      dbt[0].titles = [
+        { titleText: 'テスト', titleType: 'DisplayTitle', languageAndScriptCode: 'ja' },
+        { titleText: 'TEST', titleType: 'DisplayTitle', languageAndScriptCode: 'en' },
+      ];
+    }
+    const xml = jsonToXml(msg);
+    expect(xml).toContain('LanguageAndScriptCode="ja"');
+    expect(xml).toContain('LanguageAndScriptCode="en"');
+    expect(xml).toContain('<TitleText>テスト</TitleText>');
+    expect(xml).toContain('<TitleText>TEST</TitleText>');
+  });
+});
