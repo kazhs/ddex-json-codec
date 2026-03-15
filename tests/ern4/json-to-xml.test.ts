@@ -45,6 +45,32 @@ describe('JSON→XML: ERN 4.2', () => {
   });
 });
 
+describe('JSON→XML: ERN 4 UpdateIndicator', () => {
+  test('outputs @UpdateIndicator attribute when set', () => {
+    const msg = xmlToJson(ern42SingleXml);
+    const msgWithUpdate = { ...msg, updateIndicator: 'UpdateMessage' };
+    const xml = jsonToXml(msgWithUpdate);
+    expect(xml).toContain('UpdateIndicator="UpdateMessage"');
+  });
+
+  test('omits @UpdateIndicator when not set', () => {
+    const msg = xmlToJson(ern42SingleXml);
+    const xml = jsonToXml(msg);
+    expect(xml).not.toContain('UpdateIndicator');
+  });
+
+  test('roundtrip: UpdateIndicator preserved', () => {
+    const xmlWithUpdate = ern42SingleXml.replace(
+      '<ern:NewReleaseMessage',
+      '<ern:NewReleaseMessage UpdateIndicator="UpdateMessage"',
+    );
+    const msg = xmlToJson(xmlWithUpdate);
+    expect(msg.updateIndicator).toBe('UpdateMessage');
+    const xml = jsonToXml(msg);
+    expect(xml).toContain('UpdateIndicator="UpdateMessage"');
+  });
+});
+
 describe('JSON→XML: ERN 4.2 single', () => {
   const msg = xmlToJson(ern42SingleXml);
   const xml = jsonToXml(msg);

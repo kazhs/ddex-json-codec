@@ -1,11 +1,11 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import type { JsonToXmlBuilder } from './index.js';
-import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails } from '../../types/sound-recording.js';
-import type { Release, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference } from '../../types/release.js';
+import type { DdexMessage, DdexMessage38, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
+import type { SoundRecording38, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails } from '../../types/sound-recording.js';
+import type { Release38, ReleaseDetailsByTerritory, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
-import type { Image } from '../../types/image.js';
+import type { Image38 } from '../../types/image.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { VERSION_NAMESPACE_MAP } from '../../version/namespaces.js';
 import { BUILDER_OPTIONS } from '../utils.js';
@@ -15,6 +15,7 @@ type Raw = any;
 
 export class Ern38Builder implements JsonToXmlBuilder {
   build(message: DdexMessage, version: ErnVersion): string {
+    const msg = message as DdexMessage38;
     const nsUri = VERSION_NAMESPACE_MAP.get(version);
     if (!nsUri) throw new Error(`Unknown version: ${version}`);
 
@@ -27,11 +28,11 @@ export class Ern38Builder implements JsonToXmlBuilder {
         '@_xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
         '@_MessageSchemaVersionId': nsPath,
         '@_xsi:schemaLocation': `${nsUri} ${nsUri}/release-notification.xsd`,
-        MessageHeader: this.buildMessageHeader(message.messageHeader),
-        ...(message.updateIndicator ? { UpdateIndicator: message.updateIndicator } : {}),
-        ResourceList: this.buildResourceList(message.resourceList, message.imageList),
-        ReleaseList: this.buildReleaseList(message.releaseList),
-        DealList: this.buildDealList(message.dealList),
+        MessageHeader: this.buildMessageHeader(msg.messageHeader),
+        ...(msg.updateIndicator ? { UpdateIndicator: msg.updateIndicator } : {}),
+        ResourceList: this.buildResourceList(msg.resourceList, msg.imageList),
+        ReleaseList: this.buildReleaseList(msg.releaseList),
+        DealList: this.buildDealList(msg.dealList),
       },
     };
 
@@ -72,7 +73,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
 
   // --- ResourceList ---
 
-  private buildResourceList(soundRecordings: SoundRecording[], images?: Image[]): Raw {
+  private buildResourceList(soundRecordings: SoundRecording38[], images?: Image38[]): Raw {
     const result: Raw = {
       SoundRecording: soundRecordings.map(sr => this.buildSoundRecording(sr)),
     };
@@ -82,7 +83,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildSoundRecording(sr: SoundRecording): Raw {
+  private buildSoundRecording(sr: SoundRecording38): Raw {
     const result: Raw = {};
     if (sr.type) result.SoundRecordingType = sr.type;
     if (sr.soundRecordingId) {
@@ -135,6 +136,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
         ? { '#text': String(td.bitRate), '@_UnitOfMeasure': td.bitRateUnit }
         : String(td.bitRate);
     }
+    if (td.bitsPerSample != null) result.BitsPerSample = String(td.bitsPerSample);
     if (td.numberOfChannels != null) result.NumberOfChannels = String(td.numberOfChannels);
     if (td.samplingRate != null) {
       result.SamplingRate = td.samplingRateUnit
@@ -156,7 +158,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildImage(img: Image): Raw {
+  private buildImage(img: Image38): Raw {
     const result: Raw = {};
     if (img.type) result.ImageType = img.type;
     if (img.imageId) {
@@ -181,7 +183,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildTechnicalImageDetails(td: NonNullable<NonNullable<Image['detailsByTerritory']>[number]['technicalDetails']>): Raw {
+  private buildTechnicalImageDetails(td: NonNullable<NonNullable<Image38['detailsByTerritory']>[number]['technicalDetails']>): Raw {
     const result: Raw = {};
     if (td.technicalResourceDetailsReference) result.TechnicalResourceDetailsReference = td.technicalResourceDetailsReference;
     if (td.imageCodecType) result.ImageCodecType = td.imageCodecType;
@@ -203,13 +205,13 @@ export class Ern38Builder implements JsonToXmlBuilder {
 
   // --- ReleaseList ---
 
-  private buildReleaseList(releases: Release[]): Raw {
+  private buildReleaseList(releases: Release38[]): Raw {
     return {
       Release: releases.map(r => this.buildRelease(r)),
     };
   }
 
-  private buildRelease(r: Release): Raw {
+  private buildRelease(r: Release38): Raw {
     const result: Raw = {};
     if (r.releaseId) result.ReleaseId = this.buildReleaseId(r.releaseId);
     result.ReleaseReference = r.releaseReference;
@@ -229,7 +231,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildReleaseId(id: Release['releaseId']): Raw {
+  private buildReleaseId(id: ReleaseId): Raw {
     if (!id) return {};
     if (id.icpn) {
       return {
@@ -242,7 +244,11 @@ export class Ern38Builder implements JsonToXmlBuilder {
     const result: Raw = {};
     if (id.isrc) result.ISRC = id.isrc;
     if (id.gridOrIcpn) result.GRid = id.gridOrIcpn;
-    if (id.catalogNumber) result.CatalogNumber = id.catalogNumber;
+    if (id.catalogNumber) {
+      result.CatalogNumber = id.catalogNumberNamespace
+        ? { '#text': id.catalogNumber, '@_Namespace': id.catalogNumberNamespace }
+        : id.catalogNumber;
+    }
     return result;
   }
 
@@ -369,6 +375,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
     } else {
       result.ResourceContributorRole = c.role;
     }
+    if (c.instrumentType) result.InstrumentType = c.instrumentType;
     return result;
   }
 

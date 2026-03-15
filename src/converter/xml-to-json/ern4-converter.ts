@@ -1,10 +1,10 @@
 import type { XmlToJsonConverter } from './index.js';
-import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording, SoundRecordingId } from '../../types/sound-recording.js';
-import type { Release, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
+import type { DdexMessage4, ErnVersion, ErnVersion4, MessageHeader, MessageParty } from '../../types/ern.js';
+import type { SoundRecording4, SoundRecordingId } from '../../types/sound-recording.js';
+import type { Release4, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
-import type { Image } from '../../types/image.js';
+import type { Image4 } from '../../types/image.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -14,7 +14,7 @@ type Raw = any;
 export class Ern4Converter implements XmlToJsonConverter {
   private partyIndex = new Map<string, Party>();
 
-  convert(parsed: Record<string, unknown>, version: ErnVersion): DdexMessage {
+  convert(parsed: Record<string, unknown>, version: ErnVersion): DdexMessage4 {
     const root = (parsed as Raw).NewReleaseMessage;
     if (!root) {
       throw new Error('NewReleaseMessage root element not found');
@@ -25,8 +25,9 @@ export class Ern4Converter implements XmlToJsonConverter {
 
     // Pass 2: ResourceList, ReleaseList, DealList
     return {
-      ernVersion: version,
+      ernVersion: version as ErnVersion4,
       messageHeader: this.parseMessageHeader(root.MessageHeader),
+      updateIndicator: root['@_UpdateIndicator'] ?? undefined,
       resourceList: this.parseSoundRecordings(root.ResourceList),
       imageList: this.parseImages(root.ResourceList),
       releaseList: this.parseReleases(root.ReleaseList),
@@ -129,12 +130,12 @@ export class Ern4Converter implements XmlToJsonConverter {
 
   // --- SoundRecording ---
 
-  private parseSoundRecordings(resourceList: Raw): SoundRecording[] {
+  private parseSoundRecordings(resourceList: Raw): SoundRecording4[] {
     if (!resourceList) return [];
     return ensureArray(resourceList.SoundRecording).map((sr: Raw) => this.parseSoundRecording(sr));
   }
 
-  private parseSoundRecording(raw: Raw): SoundRecording {
+  private parseSoundRecording(raw: Raw): SoundRecording4 {
     // 4.3: SoundRecordingEdition wraps ResourceId, PLine
     const edition = raw.SoundRecordingEdition;
     let soundRecordingId: SoundRecordingId | undefined;
@@ -175,12 +176,12 @@ export class Ern4Converter implements XmlToJsonConverter {
 
   // --- Image ---
 
-  private parseImages(resourceList: Raw): Image[] | undefined {
+  private parseImages(resourceList: Raw): Image4[] | undefined {
     if (!resourceList) return undefined;
     const images = ensureArray(resourceList.Image);
     if (images.length === 0) return undefined;
     return images.map((img: Raw) => {
-      const result: Image = {
+      const result: Image4 = {
         resourceReference: img.ResourceReference,
         type: img.Type ?? undefined,
         parentalWarningType: img.ParentalWarningType ?? undefined,
@@ -219,12 +220,12 @@ export class Ern4Converter implements XmlToJsonConverter {
 
   // --- Release ---
 
-  private parseReleases(releaseList: Raw): Release[] {
+  private parseReleases(releaseList: Raw): Release4[] {
     if (!releaseList) return [];
     return ensureArray(releaseList.Release).map((r: Raw) => this.parseRelease(r));
   }
 
-  private parseRelease(raw: Raw): Release {
+  private parseRelease(raw: Raw): Release4 {
     return {
       releaseReference: raw.ReleaseReference,
       releaseType: this.parseReleaseType(raw.ReleaseType),
@@ -265,10 +266,22 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (propId) {
       proprietaryId = typeof propId === 'string' ? propId : propId['#text'];
     }
+    const catalogNumberRaw = raw.CatalogNumber;
+    let catalogNumber: string | undefined;
+    let catalogNumberNamespace: string | undefined;
+    if (catalogNumberRaw) {
+      if (typeof catalogNumberRaw === 'string') {
+        catalogNumber = catalogNumberRaw;
+      } else {
+        catalogNumber = catalogNumberRaw['#text'] ?? undefined;
+        catalogNumberNamespace = catalogNumberRaw['@_Namespace'] ?? undefined;
+      }
+    }
     return {
       isrc: raw.ISRC ?? undefined,
       gridOrIcpn: raw.GRid ?? undefined,
-      catalogNumber: raw.CatalogNumber ?? undefined,
+      catalogNumber,
+      catalogNumberNamespace,
       proprietaryId,
     };
   }

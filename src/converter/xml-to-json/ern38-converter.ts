@@ -1,10 +1,10 @@
 import type { XmlToJsonConverter } from './index.js';
-import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
-import type { Release, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, ReferenceTitle as ReleaseReferenceTitle } from '../../types/release.js';
+import type { DdexMessage38, ErnVersion, ErnVersion38, MessageHeader, MessageParty } from '../../types/ern.js';
+import type { SoundRecording38, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails, ReferenceTitle as SoundRecordingReferenceTitle } from '../../types/sound-recording.js';
+import type { Release38, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, ReferenceTitle as ReleaseReferenceTitle, ReleaseId } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
-import type { Image, ImageDetailsByTerritory, TechnicalImageDetails, FileDetails, HashSum } from '../../types/image.js';
+import type { Image38, ImageDetailsByTerritory, TechnicalImageDetails, FileDetails, HashSum } from '../../types/image.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -12,14 +12,14 @@ import { ensureArray } from '../utils.js';
 type Raw = any;
 
 export class Ern38Converter implements XmlToJsonConverter {
-  convert(parsed: Record<string, unknown>, version: ErnVersion): DdexMessage {
+  convert(parsed: Record<string, unknown>, version: ErnVersion): DdexMessage38 {
     const root = (parsed as Raw).NewReleaseMessage;
     if (!root) {
       throw new Error('NewReleaseMessage root element not found');
     }
 
     return {
-      ernVersion: version,
+      ernVersion: version as ErnVersion38,
       messageHeader: this.parseMessageHeader(root.MessageHeader),
       updateIndicator: root.UpdateIndicator ?? undefined,
       resourceList: this.parseSoundRecordings(root.ResourceList),
@@ -63,13 +63,13 @@ export class Ern38Converter implements XmlToJsonConverter {
 
   // --- SoundRecording ---
 
-  private parseSoundRecordings(resourceList: Raw): SoundRecording[] {
+  private parseSoundRecordings(resourceList: Raw): SoundRecording38[] {
     if (!resourceList) return [];
     const recordings = ensureArray(resourceList.SoundRecording);
     return recordings.map((sr: Raw) => this.parseSoundRecording(sr));
   }
 
-  private parseSoundRecording(raw: Raw): SoundRecording {
+  private parseSoundRecording(raw: Raw): SoundRecording38 {
     const detailsByTerritory = ensureArray(raw.SoundRecordingDetailsByTerritory)
       .map((d: Raw) => this.parseSoundRecordingDetailsByTerritory(d));
 
@@ -127,6 +127,7 @@ export class Ern38Converter implements XmlToJsonConverter {
       audioCodecType: raw.AudioCodecType ?? undefined,
       bitRate: bitRate ? Number(typeof bitRate === 'string' ? bitRate : bitRate['#text']) : undefined,
       bitRateUnit: typeof bitRate === 'object' ? bitRate['@_UnitOfMeasure'] ?? undefined : undefined,
+      bitsPerSample: raw.BitsPerSample ? Number(raw.BitsPerSample) : undefined,
       numberOfChannels: raw.NumberOfChannels ? Number(raw.NumberOfChannels) : undefined,
       samplingRate: samplingRate ? Number(typeof samplingRate === 'string' ? samplingRate : samplingRate['#text']) : undefined,
       samplingRateUnit: typeof samplingRate === 'object' ? samplingRate['@_UnitOfMeasure'] ?? undefined : undefined,
@@ -137,14 +138,14 @@ export class Ern38Converter implements XmlToJsonConverter {
 
   // --- Image ---
 
-  private parseImages(resourceList: Raw): Image[] | undefined {
+  private parseImages(resourceList: Raw): Image38[] | undefined {
     if (!resourceList) return undefined;
     const images = ensureArray(resourceList.Image);
     if (images.length === 0) return undefined;
     return images.map((img: Raw) => this.parseImage(img));
   }
 
-  private parseImage(raw: Raw): Image {
+  private parseImage(raw: Raw): Image38 {
     return {
       resourceReference: raw.ResourceReference,
       type: raw.ImageType ?? undefined,
@@ -155,7 +156,7 @@ export class Ern38Converter implements XmlToJsonConverter {
     };
   }
 
-  private parseImageId(raw: Raw): Image['imageId'] {
+  private parseImageId(raw: Raw): Image38['imageId'] {
     const propId = raw.ProprietaryId;
     if (!propId) return undefined;
     return {
@@ -201,12 +202,12 @@ export class Ern38Converter implements XmlToJsonConverter {
 
   // --- Release ---
 
-  private parseReleases(releaseList: Raw): Release[] {
+  private parseReleases(releaseList: Raw): Release38[] {
     if (!releaseList) return [];
     return ensureArray(releaseList.Release).map((r: Raw) => this.parseRelease(r));
   }
 
-  private parseRelease(raw: Raw): Release {
+  private parseRelease(raw: Raw): Release38 {
     const detailsByTerritory = ensureArray(raw.ReleaseDetailsByTerritory)
       .map((d: Raw) => this.parseReleaseDetailsByTerritory(d));
 
@@ -229,17 +230,29 @@ export class Ern38Converter implements XmlToJsonConverter {
     };
   }
 
-  private parseReleaseId(raw: Raw): Release['releaseId'] {
+  private parseReleaseId(raw: Raw): ReleaseId {
     const icpnRaw = raw.ICPN;
     if (icpnRaw) {
       const icpnValue = typeof icpnRaw === 'string' ? icpnRaw : icpnRaw['#text'];
       const isEan = typeof icpnRaw === 'object' && icpnRaw['@_IsEan'] === 'true' ? true : undefined;
       return { icpn: icpnValue, isEan };
     }
+    const catalogNumberRaw = raw.CatalogNumber;
+    let catalogNumber: string | undefined;
+    let catalogNumberNamespace: string | undefined;
+    if (catalogNumberRaw) {
+      if (typeof catalogNumberRaw === 'string') {
+        catalogNumber = catalogNumberRaw;
+      } else {
+        catalogNumber = catalogNumberRaw['#text'] ?? undefined;
+        catalogNumberNamespace = catalogNumberRaw['@_Namespace'] ?? undefined;
+      }
+    }
     return {
       isrc: raw.ISRC ?? undefined,
       gridOrIcpn: raw.GRid ?? undefined,
-      catalogNumber: raw.CatalogNumber ?? undefined,
+      catalogNumber,
+      catalogNumberNamespace,
     };
   }
 
@@ -415,6 +428,7 @@ export class Ern38Converter implements XmlToJsonConverter {
         name: c.PartyName?.FullName ?? '',
         role,
         sequenceNumber: c['@_SequenceNumber'] ? Number(c['@_SequenceNumber']) : undefined,
+        instrumentType: c.InstrumentType ?? undefined,
         roleNamespace,
         roleUserDefinedValue,
       };

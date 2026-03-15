@@ -2,25 +2,29 @@ import type { DisplayTitle, Genre, PLine, Title } from './common.js';
 import type { Contributor, DisplayArtist, ResourceContributor, IndirectResourceContributor } from './party.js';
 import type { FileDetails } from './image.js';
 
-export interface SoundRecording {
+export interface SoundRecordingBase {
   resourceReference: string;
   type?: string;
   soundRecordingId?: SoundRecordingId;
-  referenceTitle?: ReferenceTitle;
   displayArtists: DisplayArtist[];
   duration?: string;
   creationDate?: string;
   languageOfPerformance?: string;
   pLine?: PLine;
-  /** 3.8系: territory別の詳細 */
+}
+
+export interface SoundRecording38 extends SoundRecordingBase {
+  referenceTitle?: ReferenceTitle;
   detailsByTerritory?: SoundRecordingDetailsByTerritory[];
-  /** 4系: フラットなタイトルテキスト */
+}
+
+export interface SoundRecording4 extends SoundRecordingBase {
   displayTitleText?: string;
-  /** 4系: 複数のDisplayTitle（territory+lang属性） */
   displayTitles?: DisplayTitle[];
-  /** 4系: PartyReference参照のContributor */
   contributors?: Contributor[];
 }
+
+export type SoundRecording = SoundRecording38 | SoundRecording4;
 
 export interface SoundRecordingId {
   isrc?: string;
@@ -37,6 +41,7 @@ export interface TechnicalSoundRecordingDetails {
   audioCodecType?: string;
   bitRate?: number;
   bitRateUnit?: string;
+  bitsPerSample?: number;
   numberOfChannels?: number;
   samplingRate?: number;
   samplingRateUnit?: string;

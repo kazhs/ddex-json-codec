@@ -1,13 +1,19 @@
-export interface Image {
+export interface ImageBase {
   resourceReference: string;
   type?: string;
   imageId?: ImageId;
-  /** 3.8系: territory別の詳細 */
+}
+
+export interface Image38 extends ImageBase {
   detailsByTerritory?: ImageDetailsByTerritory[];
-  /** 4系: フラット */
+}
+
+export interface Image4 extends ImageBase {
   parentalWarningType?: string;
   technicalDetails?: TechnicalImageDetails;
 }
+
+export type Image = Image38 | Image4;
 
 export interface ImageId {
   proprietaryId?: string;

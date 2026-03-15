@@ -37,6 +37,7 @@ export interface ResourceContributor {
   name: string;
   role: string;
   sequenceNumber?: number;
+  instrumentType?: string;
   /** UserDefined時の属性 */
   roleNamespace?: string;
   roleUserDefinedValue?: string;

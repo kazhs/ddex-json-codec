@@ -1,11 +1,11 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import type { JsonToXmlBuilder } from './index.js';
-import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording } from '../../types/sound-recording.js';
-import type { Release, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
+import type { DdexMessage, DdexMessage4, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
+import type { SoundRecording4, SoundRecordingId } from '../../types/sound-recording.js';
+import type { Release4, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, Party, Contributor } from '../../types/party.js';
-import type { Image } from '../../types/image.js';
+import type { Image4 } from '../../types/image.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { VERSION_NAMESPACE_MAP } from '../../version/namespaces.js';
 import { BUILDER_OPTIONS } from '../utils.js';
@@ -15,6 +15,7 @@ type Raw = any;
 
 export class Ern4Builder implements JsonToXmlBuilder {
   build(message: DdexMessage, version: ErnVersion): string {
+    const msg = message as DdexMessage4;
     const nsUri = VERSION_NAMESPACE_MAP.get(version);
     if (!nsUri) throw new Error(`Unknown version: ${version}`);
 
@@ -24,11 +25,12 @@ export class Ern4Builder implements JsonToXmlBuilder {
         '@_xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
         '@_xsi:schemaLocation': `${nsUri} ${nsUri}/release-notification.xsd`,
         '@_LanguageAndScriptCode': 'en',
-        MessageHeader: this.buildMessageHeader(message.messageHeader),
-        PartyList: this.buildPartyList(message.partyList ?? []),
-        ResourceList: this.buildResourceList(message.resourceList, message.imageList, version),
-        ReleaseList: this.buildReleaseList(message.releaseList, message.trackReleaseList),
-        DealList: this.buildDealList(message.dealList),
+        ...(msg.updateIndicator ? { '@_UpdateIndicator': msg.updateIndicator } : {}),
+        MessageHeader: this.buildMessageHeader(msg.messageHeader),
+        PartyList: this.buildPartyList(msg.partyList ?? []),
+        ResourceList: this.buildResourceList(msg.resourceList, msg.imageList, version),
+        ReleaseList: this.buildReleaseList(msg.releaseList, msg.trackReleaseList),
+        DealList: this.buildDealList(msg.dealList),
       },
     };
 
@@ -90,7 +92,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
 
   // --- ResourceList ---
 
-  private buildResourceList(soundRecordings: SoundRecording[], images: Image[] | undefined, _version: ErnVersion): Raw {
+  private buildResourceList(soundRecordings: SoundRecording4[], images: Image4[] | undefined, _version: ErnVersion): Raw {
     const result: Raw = {
       SoundRecording: soundRecordings.map(sr => this.buildSoundRecording(sr)),
     };
@@ -100,7 +102,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildImage(img: Image): Raw {
+  private buildImage(img: Image4): Raw {
     const result: Raw = {};
     result.ResourceReference = img.resourceReference;
     if (img.type) result.Type = img.type;
@@ -134,7 +136,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildSoundRecording(sr: SoundRecording): Raw {
+  private buildSoundRecording(sr: SoundRecording4): Raw {
     const result: Raw = {};
     result.ResourceReference = sr.resourceReference;
     if (sr.type) result.Type = sr.type;
@@ -153,7 +155,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildSoundRecordingId(id: SoundRecording['soundRecordingId']): Raw {
+  private buildSoundRecordingId(id: SoundRecordingId): Raw {
     if (!id) return {};
     const result: Raw = {};
     if (id.isrc) result.ISRC = id.isrc;
@@ -163,7 +165,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
 
   // --- ReleaseList ---
 
-  private buildReleaseList(releases: Release[], trackReleases?: TrackRelease[]): Raw {
+  private buildReleaseList(releases: Release4[], trackReleases?: TrackRelease[]): Raw {
     const result: Raw = {};
     result.Release = releases.map(r => this.buildRelease(r));
     if (trackReleases?.length) {
@@ -172,7 +174,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildRelease(r: Release): Raw {
+  private buildRelease(r: Release4): Raw {
     const result: Raw = {};
     result.ReleaseReference = r.releaseReference;
     if (r.releaseType) result.ReleaseType = r.releaseType;
@@ -194,14 +196,18 @@ export class Ern4Builder implements JsonToXmlBuilder {
     return result;
   }
 
-  private buildReleaseId(id: Release['releaseId']): Raw {
+  private buildReleaseId(id: ReleaseId): Raw {
     if (!id) return {};
     const result: Raw = {};
     if (id.icpn) result.ICPN = id.icpn;
     if (id.isrc) result.ISRC = id.isrc;
     if (id.gridOrIcpn) result.GRid = id.gridOrIcpn;
     if (id.proprietaryId) result.ProprietaryId = id.proprietaryId;
-    if (id.catalogNumber) result.CatalogNumber = id.catalogNumber;
+    if (id.catalogNumber) {
+      result.CatalogNumber = id.catalogNumberNamespace
+        ? { '#text': id.catalogNumber, '@_Namespace': id.catalogNumberNamespace }
+        : id.catalogNumber;
+    }
     return result;
   }
 

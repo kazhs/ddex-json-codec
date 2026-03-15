@@ -20,11 +20,18 @@ detectVersion(xml: string): ErnVersion      // バージョン検出
 
 ## 型設計
 
-**統一型方式**: 3.8系と4系で同じ `DdexMessage` 型を使う。4系固有フィールドはoptional。
+**Discriminated Union方式**: `ernVersion` リテラル型で3.8系と4系を区別する。バージョン固有のフィールドはそれぞれのインターフェースにのみ存在し、誤用をコンパイル時に検出できる。
 
 ```typescript
-type ErnVersion = '3.8' | '3.8.1' | '3.8.2' | '3.8.3'
-               | '4.1' | '4.1.1' | '4.2' | '4.3' | '4.3.1' | '4.3.2';
+type ErnVersion38 = '3.8' | '3.8.1' | '3.8.2' | '3.8.3';
+type ErnVersion4 = '4.1' | '4.1.1' | '4.2' | '4.3' | '4.3.1' | '4.3.2';
+type ErnVersion = ErnVersion38 | ErnVersion4;
+
+// Discriminated Union: ernVersionでnarrowingできる
+type DdexMessage = DdexMessage38 | DdexMessage4;
+type SoundRecording = SoundRecording38 | SoundRecording4;
+type Release = Release38 | Release4;
+type Image = Image38 | Image4;
 
 // 変換ロジックの分岐用
 type ErnMajorVersion = '3.8' | '4';
@@ -137,7 +144,7 @@ DdexMessage
 
 ## テスト
 
-90テスト（3.8系50 + 4系38 + bulk validation 2）。430件の実データで検証済み。
+95テスト（3.8系50 + 4系43 + bulk validation 2）。430件の実データで検証済み。
 
 テスト構成:
 - バージョン検出テスト

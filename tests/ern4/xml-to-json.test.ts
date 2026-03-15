@@ -160,6 +160,22 @@ describe('XML→JSON: ERN 4.3 single', () => {
   });
 });
 
+describe('XML→JSON: ERN 4 UpdateIndicator', () => {
+  test('parses @UpdateIndicator attribute from v4 root element', () => {
+    const xmlWithUpdate = ern42SingleXml.replace(
+      '<ern:NewReleaseMessage',
+      '<ern:NewReleaseMessage UpdateIndicator="UpdateMessage"',
+    );
+    const msg = xmlToJson(xmlWithUpdate);
+    expect(msg.updateIndicator).toBe('UpdateMessage');
+  });
+
+  test('updateIndicator is undefined when not present', () => {
+    const msg = xmlToJson(ern42SingleXml);
+    expect(msg.updateIndicator).toBeUndefined();
+  });
+});
+
 describe('XML→JSON: ERN 4.3 album', () => {
   const msg = xmlToJson(ern43AlbumXml);
 

@@ -1,28 +1,33 @@
 import type { DisplayTitle, Genre, PLine, CLine, Title } from './common.js';
 import type { DisplayArtist } from './party.js';
 
-export interface Release {
+export interface ReleaseBase {
   releaseReference: string;
   releaseType?: string;
   releaseId?: ReleaseId;
-  referenceTitle?: ReferenceTitle;
   displayArtists: DisplayArtist[];
   releaseResourceReferences?: ReleaseResourceReference[];
-  resourceGroup?: ResourceGroup;
   duration?: string;
   pLine?: PLine;
   cLine?: CLine;
-  /** 3.8系: territory別の詳細 */
+}
+
+export interface Release38 extends ReleaseBase {
+  referenceTitle?: ReferenceTitle;
   detailsByTerritory?: ReleaseDetailsByTerritory[];
-  /** 4系: フラットなタイトルテキスト */
+  resourceGroup?: ResourceGroup;
+}
+
+export interface Release4 extends ReleaseBase {
   displayTitleText?: string;
-  /** 4系: 複数のDisplayTitle（territory+lang属性） */
   displayTitles?: DisplayTitle[];
-  /** 4系: ReleaseLabelReference（PartyRef値） */
   releaseLabelReferences?: string[];
   genre?: Genre;
   parentalWarningType?: string;
+  resourceGroup?: ResourceGroup;
 }
+
+export type Release = Release38 | Release4;
 
 export interface ReferenceTitle {
   titleText: string;
@@ -35,6 +40,7 @@ export interface ReleaseId {
   isrc?: string;
   gridOrIcpn?: string;
   catalogNumber?: string;
+  catalogNumberNamespace?: string;
   proprietaryId?: string;
 }
 
@@ -62,9 +68,7 @@ export interface TrackRelease {
   referenceTitle?: ReferenceTitle;
   displayArtists?: DisplayArtist[];
   releaseResourceReference: string;
-  /** 4系: 複数のDisplayTitle */
   displayTitles?: DisplayTitle[];
-  /** 4系: ReleaseLabelReference */
   releaseLabelReferences?: string[];
   genre?: Genre;
 }
