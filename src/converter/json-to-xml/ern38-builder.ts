@@ -1,10 +1,11 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import type { JsonToXmlBuilder } from './index.js';
 import type { DdexMessage, ErnVersion, MessageHeader, MessageParty } from '../../types/ern.js';
-import type { SoundRecording, SoundRecordingDetailsByTerritory } from '../../types/sound-recording.js';
+import type { SoundRecording, SoundRecordingDetailsByTerritory, TechnicalSoundRecordingDetails } from '../../types/sound-recording.js';
 import type { Release, ReleaseDetailsByTerritory, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, ResourceContributor, IndirectResourceContributor } from '../../types/party.js';
+import type { Image } from '../../types/image.js';
 import type { Genre, PLine, CLine, Title } from '../../types/common.js';
 import { VERSION_NAMESPACE_MAP } from '../../version/namespaces.js';
 import { BUILDER_OPTIONS } from '../utils.js';
@@ -28,7 +29,7 @@ export class Ern38Builder implements JsonToXmlBuilder {
         '@_xsi:schemaLocation': `${nsUri} ${nsUri}/release-notification.xsd`,
         MessageHeader: this.buildMessageHeader(message.messageHeader),
         ...(message.updateIndicator ? { UpdateIndicator: message.updateIndicator } : {}),
-        ResourceList: this.buildResourceList(message.resourceList),
+        ResourceList: this.buildResourceList(message.resourceList, message.imageList),
         ReleaseList: this.buildReleaseList(message.releaseList),
         DealList: this.buildDealList(message.dealList),
       },
@@ -71,10 +72,14 @@ export class Ern38Builder implements JsonToXmlBuilder {
 
   // --- ResourceList ---
 
-  private buildResourceList(soundRecordings: SoundRecording[]): Raw {
-    return {
+  private buildResourceList(soundRecordings: SoundRecording[], images?: Image[]): Raw {
+    const result: Raw = {
       SoundRecording: soundRecordings.map(sr => this.buildSoundRecording(sr)),
     };
+    if (images?.length) {
+      result.Image = images.map(img => this.buildImage(img));
+    }
+    return result;
   }
 
   private buildSoundRecording(sr: SoundRecording): Raw {
@@ -115,6 +120,84 @@ export class Ern38Builder implements JsonToXmlBuilder {
     if (d.sequenceNumber != null) result.SequenceNumber = String(d.sequenceNumber);
     if (d.genre) result.Genre = this.buildGenre(d.genre);
     if (d.parentalWarningType) result.ParentalWarningType = d.parentalWarningType;
+    if (d.technicalDetails) {
+      result.TechnicalSoundRecordingDetails = d.technicalDetails.map(td => this.buildTechnicalSoundRecordingDetails(td));
+    }
+    return result;
+  }
+
+  private buildTechnicalSoundRecordingDetails(td: TechnicalSoundRecordingDetails): Raw {
+    const result: Raw = {};
+    if (td.technicalResourceDetailsReference) result.TechnicalResourceDetailsReference = td.technicalResourceDetailsReference;
+    if (td.audioCodecType) result.AudioCodecType = td.audioCodecType;
+    if (td.bitRate != null) {
+      result.BitRate = td.bitRateUnit
+        ? { '#text': String(td.bitRate), '@_UnitOfMeasure': td.bitRateUnit }
+        : String(td.bitRate);
+    }
+    if (td.numberOfChannels != null) result.NumberOfChannels = String(td.numberOfChannels);
+    if (td.samplingRate != null) {
+      result.SamplingRate = td.samplingRateUnit
+        ? { '#text': String(td.samplingRate), '@_UnitOfMeasure': td.samplingRateUnit }
+        : String(td.samplingRate);
+    }
+    if (td.isPreview != null) result.IsPreview = String(td.isPreview);
+    if (td.file) {
+      const file: Raw = {};
+      if (td.file.fileName) file.FileName = td.file.fileName;
+      if (td.file.uri) file.URI = td.file.uri;
+      if (td.file.hashSum) {
+        file.HashSum = {};
+        if (td.file.hashSum.algorithm) file.HashSum.HashSumAlgorithmType = td.file.hashSum.algorithm;
+        if (td.file.hashSum.hashSumValue) file.HashSum.HashSum = td.file.hashSum.hashSumValue;
+      }
+      result.File = file;
+    }
+    return result;
+  }
+
+  private buildImage(img: Image): Raw {
+    const result: Raw = {};
+    if (img.type) result.ImageType = img.type;
+    if (img.imageId) {
+      const id: Raw = {};
+      if (img.imageId.proprietaryId) {
+        id.ProprietaryId = img.imageId.proprietaryIdNamespace
+          ? { '#text': img.imageId.proprietaryId, '@_Namespace': img.imageId.proprietaryIdNamespace }
+          : img.imageId.proprietaryId;
+      }
+      result.ImageId = id;
+    }
+    result.ResourceReference = img.resourceReference;
+    if (img.detailsByTerritory) {
+      result.ImageDetailsByTerritory = img.detailsByTerritory.map(d => {
+        const dbt: Raw = {};
+        dbt.TerritoryCode = d.territoryCode;
+        if (d.parentalWarningType) dbt.ParentalWarningType = d.parentalWarningType;
+        if (d.technicalDetails) dbt.TechnicalImageDetails = this.buildTechnicalImageDetails(d.technicalDetails);
+        return dbt;
+      });
+    }
+    return result;
+  }
+
+  private buildTechnicalImageDetails(td: NonNullable<NonNullable<Image['detailsByTerritory']>[number]['technicalDetails']>): Raw {
+    const result: Raw = {};
+    if (td.technicalResourceDetailsReference) result.TechnicalResourceDetailsReference = td.technicalResourceDetailsReference;
+    if (td.imageCodecType) result.ImageCodecType = td.imageCodecType;
+    if (td.imageHeight != null) result.ImageHeight = String(td.imageHeight);
+    if (td.imageWidth != null) result.ImageWidth = String(td.imageWidth);
+    if (td.file) {
+      const file: Raw = {};
+      if (td.file.fileName) file.FileName = td.file.fileName;
+      if (td.file.uri) file.URI = td.file.uri;
+      if (td.file.hashSum) {
+        file.HashSum = {};
+        if (td.file.hashSum.algorithm) file.HashSum.HashSumAlgorithmType = td.file.hashSum.algorithm;
+        if (td.file.hashSum.hashSumValue) file.HashSum.HashSum = td.file.hashSum.hashSumValue;
+      }
+      result.File = file;
+    }
     return result;
   }
 

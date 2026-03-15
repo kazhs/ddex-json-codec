@@ -4,6 +4,7 @@ import type { SoundRecording, SoundRecordingId } from '../../types/sound-recordi
 import type { Release, ReleaseId, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, Party, PartyName, Contributor } from '../../types/party.js';
+import type { Image } from '../../types/image.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { ensureArray } from '../utils.js';
 
@@ -27,6 +28,7 @@ export class Ern4Converter implements XmlToJsonConverter {
       ernVersion: version,
       messageHeader: this.parseMessageHeader(root.MessageHeader),
       resourceList: this.parseSoundRecordings(root.ResourceList),
+      imageList: this.parseImages(root.ResourceList),
       releaseList: this.parseReleases(root.ReleaseList),
       dealList: this.parseDealList(root.DealList),
       partyList,
@@ -169,6 +171,50 @@ export class Ern4Converter implements XmlToJsonConverter {
       isrc: raw.ISRC ?? undefined,
       catalogNumber: raw.CatalogNumber ?? undefined,
     };
+  }
+
+  // --- Image ---
+
+  private parseImages(resourceList: Raw): Image[] | undefined {
+    if (!resourceList) return undefined;
+    const images = ensureArray(resourceList.Image);
+    if (images.length === 0) return undefined;
+    return images.map((img: Raw) => {
+      const result: Image = {
+        resourceReference: img.ResourceReference,
+        type: img.Type ?? undefined,
+        parentalWarningType: img.ParentalWarningType ?? undefined,
+      };
+      // 4系: ResourceId は直下
+      if (img.ResourceId) {
+        const propId = img.ResourceId.ProprietaryId;
+        if (propId) {
+          result.imageId = {
+            proprietaryId: typeof propId === 'string' ? propId : propId['#text'] ?? '',
+            proprietaryIdNamespace: typeof propId === 'object' ? propId['@_Namespace'] ?? undefined : undefined,
+          };
+        }
+      }
+      // 4系: TechnicalDetails は直下
+      if (img.TechnicalDetails) {
+        const td = Array.isArray(img.TechnicalDetails) ? img.TechnicalDetails[0] : img.TechnicalDetails;
+        result.technicalDetails = {
+          technicalResourceDetailsReference: td.TechnicalResourceDetailsReference ?? undefined,
+          imageCodecType: td.ImageCodecType ?? undefined,
+          imageHeight: td.ImageHeight ? Number(td.ImageHeight) : undefined,
+          imageWidth: td.ImageWidth ? Number(td.ImageWidth) : undefined,
+          file: td.File ? {
+            uri: td.File.URI ?? undefined,
+            fileName: td.File.FileName ?? undefined,
+            hashSum: td.File.HashSum ? {
+              algorithm: td.File.HashSum.Algorithm ?? undefined,
+              hashSumValue: td.File.HashSum.HashSumValue ?? undefined,
+            } : undefined,
+          } : undefined,
+        };
+      }
+      return result;
+    });
   }
 
   // --- Release ---
@@ -361,7 +407,7 @@ export class Ern4Converter implements XmlToJsonConverter {
     if (artists.length === 0) return undefined;
     return artists.map((a: Raw) => {
       const partyRef = a.ArtistPartyReference;
-      const resolved = partyRef ? this.resolveParty(partyRef) : { name: a.PartyName?.FullName ?? '' };
+      const resolved = partyRef ? this.resolveParty(partyRef) : { name: a.PartyName?.FullName ?? '', names: undefined };
       return {
         artist: {
           name: resolved.name,

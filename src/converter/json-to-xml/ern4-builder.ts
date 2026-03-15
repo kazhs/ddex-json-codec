@@ -5,6 +5,7 @@ import type { SoundRecording } from '../../types/sound-recording.js';
 import type { Release, ResourceGroup, ResourceGroupContentItem, ReleaseResourceReference, TrackRelease } from '../../types/release.js';
 import type { ReleaseDeal, Deal, DealTerms } from '../../types/deal.js';
 import type { ArtistRole, DisplayArtist, Party, Contributor } from '../../types/party.js';
+import type { Image } from '../../types/image.js';
 import type { DisplayTitle, Genre, PLine, CLine } from '../../types/common.js';
 import { VERSION_NAMESPACE_MAP } from '../../version/namespaces.js';
 import { BUILDER_OPTIONS } from '../utils.js';
@@ -25,7 +26,7 @@ export class Ern4Builder implements JsonToXmlBuilder {
         '@_LanguageAndScriptCode': 'en',
         MessageHeader: this.buildMessageHeader(message.messageHeader),
         PartyList: this.buildPartyList(message.partyList ?? []),
-        ResourceList: this.buildResourceList(message.resourceList, version),
+        ResourceList: this.buildResourceList(message.resourceList, message.imageList, version),
         ReleaseList: this.buildReleaseList(message.releaseList, message.trackReleaseList),
         DealList: this.buildDealList(message.dealList),
       },
@@ -89,10 +90,48 @@ export class Ern4Builder implements JsonToXmlBuilder {
 
   // --- ResourceList ---
 
-  private buildResourceList(soundRecordings: SoundRecording[], _version: ErnVersion): Raw {
-    return {
+  private buildResourceList(soundRecordings: SoundRecording[], images: Image[] | undefined, _version: ErnVersion): Raw {
+    const result: Raw = {
       SoundRecording: soundRecordings.map(sr => this.buildSoundRecording(sr)),
     };
+    if (images?.length) {
+      result.Image = images.map(img => this.buildImage(img));
+    }
+    return result;
+  }
+
+  private buildImage(img: Image): Raw {
+    const result: Raw = {};
+    result.ResourceReference = img.resourceReference;
+    if (img.type) result.Type = img.type;
+    if (img.imageId?.proprietaryId) {
+      result.ResourceId = {
+        ProprietaryId: img.imageId.proprietaryIdNamespace
+          ? { '#text': img.imageId.proprietaryId, '@_Namespace': img.imageId.proprietaryIdNamespace }
+          : img.imageId.proprietaryId,
+      };
+    }
+    if (img.parentalWarningType) result.ParentalWarningType = img.parentalWarningType;
+    if (img.technicalDetails) {
+      const td: Raw = {};
+      if (img.technicalDetails.technicalResourceDetailsReference) td.TechnicalResourceDetailsReference = img.technicalDetails.technicalResourceDetailsReference;
+      if (img.technicalDetails.imageCodecType) td.ImageCodecType = img.technicalDetails.imageCodecType;
+      if (img.technicalDetails.imageHeight != null) td.ImageHeight = String(img.technicalDetails.imageHeight);
+      if (img.technicalDetails.imageWidth != null) td.ImageWidth = String(img.technicalDetails.imageWidth);
+      if (img.technicalDetails.file) {
+        const file: Raw = {};
+        if (img.technicalDetails.file.uri) file.URI = img.technicalDetails.file.uri;
+        if (img.technicalDetails.file.fileName) file.FileName = img.technicalDetails.file.fileName;
+        if (img.technicalDetails.file.hashSum) {
+          file.HashSum = {};
+          if (img.technicalDetails.file.hashSum.algorithm) file.HashSum.Algorithm = img.technicalDetails.file.hashSum.algorithm;
+          if (img.technicalDetails.file.hashSum.hashSumValue) file.HashSum.HashSumValue = img.technicalDetails.file.hashSum.hashSumValue;
+        }
+        td.File = file;
+      }
+      result.TechnicalDetails = td;
+    }
+    return result;
   }
 
   private buildSoundRecording(sr: SoundRecording): Raw {

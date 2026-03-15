@@ -104,6 +104,30 @@ describe('XML→JSON: ern382-single.xml', () => {
     expect(rd.effectiveDate).toBe('2024-10-02');
   });
 
+  test('SoundRecording technicalDetails (from album)', () => {
+    const albumMsg = xmlToJson(albumXml);
+    const dbt = albumMsg.resourceList[0].detailsByTerritory![0];
+    expect(dbt.technicalDetails).toHaveLength(1);
+    const td = dbt.technicalDetails![0];
+    expect(td.audioCodecType).toBe('MP3');
+    expect(td.bitRate).toBe(320);
+    expect(td.bitRateUnit).toBe('kbps');
+    expect(td.numberOfChannels).toBe(2);
+    expect(td.samplingRate).toBe(44100);
+    expect(td.samplingRateUnit).toBe('Hz');
+    expect(td.file?.fileName).toBe('199806591208_1_1.mp3');
+    expect(td.file?.hashSum?.hashSumValue).toBe('9ed8bb19eb8aa56ba547c71426fc52ce');
+    expect(td.file?.hashSum?.algorithm).toBe('MD5');
+  });
+
+  test('Image resource', () => {
+    expect(msg.imageList).toHaveLength(1);
+    const img = msg.imageList![0];
+    expect(img.resourceReference).toBe('A2');
+    expect(img.type).toBe('FrontCoverImage');
+    expect(img.imageId?.proprietaryId).toBe('IMAGE_COVER_5710261026118');
+  });
+
   test('Release PLine/CLine', () => {
     const main = msg.releaseList[0];
     expect(main.pLine?.year).toBe('2016');

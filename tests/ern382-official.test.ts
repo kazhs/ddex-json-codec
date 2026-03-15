@@ -105,6 +105,16 @@ describe('XML→JSON: DDEX official ERN 3.8.2 (Monkey Claw album)', () => {
     expect(dbt.genre?.genreText).toBe('Metal');
   });
 
+  test('Image resource', () => {
+    expect(msg.imageList).toHaveLength(1);
+    const img = msg.imageList![0];
+    expect(img.resourceReference).toBe('A7');
+    expect(img.type).toBe('FrontCoverImage');
+    expect(img.imageId?.proprietaryId).toBe('PId0401');
+    expect(img.detailsByTerritory![0].territoryCode).toEqual(['Worldwide']);
+    expect(img.detailsByTerritory![0].technicalDetails?.file?.fileName).toBe('A1UCASE0000000401X.jpeg');
+  });
+
   test('no DealList (not present in this sample)', () => {
     expect(msg.dealList).toHaveLength(0);
   });

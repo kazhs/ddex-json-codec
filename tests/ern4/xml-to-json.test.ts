@@ -113,6 +113,15 @@ describe('XML→JSON: ERN 4.2 album', () => {
     expect(sr.contributors![0].role).toBe('Artist');
   });
 
+  test('Image resource', () => {
+    expect(msg.imageList).toHaveLength(1);
+    const img = msg.imageList![0];
+    expect(img.resourceReference).toBe('A3');
+    expect(img.type).toBe('FrontCoverImage');
+    expect(img.imageId?.proprietaryId).toBe('PACKSHOT:0094631432057');
+    expect(img.technicalDetails?.file?.uri).toBe('0094631432057.jpg');
+  });
+
   test('TrackRelease list', () => {
     expect(msg.trackReleaseList).toHaveLength(2);
     expect(msg.trackReleaseList![0].releaseReference).toBe('R1');
