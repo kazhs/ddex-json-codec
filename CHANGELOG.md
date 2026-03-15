@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2026-03-15
 
 ### Breaking Changes
 - **Discriminated Union型への移行**: `DdexMessage`, `SoundRecording`, `Release`, `Image` を3.8系/4系で分離。`ernVersion` リテラルでnarrowingできるようになった ([ADR-003](docs/adr/003-discriminated-union.md))
