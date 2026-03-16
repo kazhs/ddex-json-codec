@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { detectVersion } from '../src/index.js';
+import { detectDdexVersion as detectVersion } from '../src/index.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 

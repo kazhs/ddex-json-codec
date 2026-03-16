@@ -8,8 +8,7 @@ export interface JsonToXmlBuilder {
 /**
  * DdexMessageをXML文字列に変換する
  */
-export function jsonToXml(message: DdexMessage, version?: ErnVersion): string {
-  const targetVersion = version ?? message.ernVersion;
-  const builder = ConverterFactory.createJsonToXmlBuilder(targetVersion);
-  return builder.build(message, targetVersion);
+export function jsonToXml(message: DdexMessage): string {
+  const builder = ConverterFactory.createJsonToXmlBuilder(message.ernVersion);
+  return builder.build(message, message.ernVersion);
 }

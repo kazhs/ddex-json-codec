@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { xmlToJson } from '../src/index.js';
+import { ddexToJson as xmlToJson } from '../src/index.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 

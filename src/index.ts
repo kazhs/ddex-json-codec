@@ -1,6 +1,10 @@
-export { xmlToJson } from './converter/xml-to-json/index.js';
-export { jsonToXml } from './converter/json-to-xml/index.js';
-export { detectVersion } from './version/detect.js';
+import { xmlToJson } from './converter/xml-to-json/index.js';
+import { jsonToXml } from './converter/json-to-xml/index.js';
+import { detectVersion } from './version/detect.js';
+
+export { xmlToJson as ddexToJson };
+export { jsonToXml as jsonToDdex };
+export { detectVersion as detectDdexVersion };
 
 export type {
   DdexMessage,
