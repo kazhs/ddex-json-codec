@@ -1,4 +1,4 @@
-import type { DdexMessage, DdexMessage38, DdexMessage4, ErnVersion, ErnVersion38, ErnVersion4 } from '../../types/ern.js';
+import type { DdexMessage, DdexMessage38, DdexMessage4, ErnMajorVersion, ErnVersion38, ErnVersion4 } from '../../types/ern.js';
 import type { SoundRecording38, SoundRecording4, SoundRecordingDetailsByTerritory, ReferenceTitle } from '../../types/sound-recording.js';
 import type { Release38, Release4, ReleaseDetailsByTerritory } from '../../types/release.js';
 import type { Image38, Image4 } from '../../types/image.js';
@@ -6,6 +6,11 @@ import type { ReleaseDeal, DealTerms } from '../../types/deal.js';
 import type { DisplayArtist, Party, PartyName, ResourceContributor, Contributor } from '../../types/party.js';
 import type { DisplayTitle, Title } from '../../types/common.js';
 import { getMajorVersion } from '../../version/detect.js';
+
+const LATEST_PATCH: Record<ErnMajorVersion, ErnVersion38 | ErnVersion4> = {
+  '3.8': '3.8.3',
+  '4': '4.3.2',
+};
 
 export interface ConversionWarning {
   type: 'field_dropped' | 'structure_changed';
@@ -19,22 +24,21 @@ export interface ConversionResult {
 }
 
 /**
- * DdexMessage をターゲットバージョンに変換する
+ * DdexMessage をターゲットメジャーバージョンに変換する
+ * パッチバージョンは各メジャーの最新が使われる (3.8.3 / 4.3.2)
  */
-export function convertDdexMessage(message: DdexMessage, target: ErnVersion): ConversionResult {
+export function convertDdexMessage(message: DdexMessage, target: ErnMajorVersion): ConversionResult {
   const sourceMajor = getMajorVersion(message.ernVersion);
-  const targetMajor = getMajorVersion(target);
 
-  if (sourceMajor === targetMajor) {
-    // 同一メジャー: ernVersion だけ差し替え
-    return { result: { ...message, ernVersion: target } as DdexMessage, warnings: [] };
+  if (sourceMajor === target) {
+    return { result: message, warnings: [] };
   }
 
-  if (sourceMajor === '3.8' && targetMajor === '4') {
-    return convert38To4(message as DdexMessage38, target as ErnVersion4);
+  if (target === '4') {
+    return convert38To4(message as DdexMessage38, LATEST_PATCH['4'] as ErnVersion4);
   }
 
-  return convert4To38(message as DdexMessage4, target as ErnVersion38);
+  return convert4To38(message as DdexMessage4, LATEST_PATCH['3.8'] as ErnVersion38);
 }
 
 // --- 3.8 → 4 ---
