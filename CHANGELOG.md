@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-03-16
+
+### Breaking Changes
+- **公開API関数のリネーム**: DDEXプレフィックスを追加し、importの明確化を実現
+  - `xmlToJson` → `ddexToJson`
+  - `jsonToXml` → `jsonToDdex` (`version` 引数も削除)
+  - `detectVersion` → `detectDdexVersion`
+
+### Added
+- `convertDdexVersion(xml, targetVersion)` — DDEX XML文字列をターゲットバージョンに変換
+- `convertDdexMessage(message, targetVersion)` — DdexMessage をターゲットバージョンに変換
+- `ConversionResult`, `ConversionWarning` 型のエクスポート
+- 3.8→4変換: detailsByTerritoryフラット化、PartyList生成、DealTerms変換、takeDown Deal除外
+- 4→3.8変換: PartyReference解決、detailsByTerritory再構成、Contributor→ResourceContributor変換
+
 ## [0.3.1] - 2026-03-15
 
 ### Added

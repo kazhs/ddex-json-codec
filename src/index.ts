@@ -1,10 +1,24 @@
 import { xmlToJson } from './converter/xml-to-json/index.js';
 import { jsonToXml } from './converter/json-to-xml/index.js';
 import { detectVersion } from './version/detect.js';
+import { convertDdexMessage } from './converter/version/index.js';
+import type { ErnVersion } from './types/ern.js';
+import type { ConversionResult } from './converter/version/index.js';
 
 export { xmlToJson as ddexToJson };
 export { jsonToXml as jsonToDdex };
 export { detectVersion as detectDdexVersion };
+export { convertDdexMessage };
+export type { ConversionResult, ConversionWarning } from './converter/version/index.js';
+
+/**
+ * DDEX XML文字列をターゲットバージョンに変換する
+ */
+export function convertDdexVersion(xml: string, target: ErnVersion): ConversionResult & { xml: string } {
+  const message = xmlToJson(xml);
+  const { result, warnings } = convertDdexMessage(message, target);
+  return { result, xml: jsonToXml(result), warnings };
+}
 
 export type {
   DdexMessage,
