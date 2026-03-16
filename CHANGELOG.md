@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `detectVersion` → `detectDdexVersion`
 
 ### Added
-- `convertDdexVersion(xml, targetVersion)` — DDEX XML文字列をターゲットバージョンに変換
-- `convertDdexMessage(message, targetVersion)` — DdexMessage をターゲットバージョンに変換
+- `convertDdexVersion(xml, target: ErnMajorVersion)` — DDEX XML文字列をターゲットメジャーバージョンに変換（`'3.8'` or `'4'`）
+- `convertDdexMessage(message, target: ErnMajorVersion)` — DdexMessage をターゲットメジャーバージョンに変換
 - `ConversionResult`, `ConversionWarning` 型のエクスポート
 - 3.8→4変換: detailsByTerritoryフラット化、PartyList生成、DealTerms変換、takeDown Deal除外
 - 4→3.8変換: PartyReference解決、detailsByTerritory再構成、Contributor→ResourceContributor変換
